@@ -1,13 +1,15 @@
 class AppRoutes{
 
+  static const loginPage = "/login";
+
   static const homePage = "/";
 
-  static const allTickets = "/all_tickets";
+  static const SearchPage = "/search";
 
-  static const ticketScreen = "/ticket_screen";
+  static const viewAllTodaysTopExercises = "/todays_top_view_all";
 
-  static const allHotels = "/all_hotels";
+  static const progressLogPage = "/progress_log";
 
-  static const hotelDetail = "/hotel_screen";
+  static const profilePage = "/profile";
 
 } 

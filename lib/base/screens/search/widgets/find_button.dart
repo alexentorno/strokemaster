@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/base/util/styles/app_styles.dart';
 
-class FindTickets extends StatelessWidget {
-  const FindTickets({super.key});
+class SearchButton extends StatelessWidget {
+  const SearchButton({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class FindTickets extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          "Find Tickets", 
+          "Search",
           style: AppStyles.linkStyle.copyWith(color: Colors.white),)),
     );
   }

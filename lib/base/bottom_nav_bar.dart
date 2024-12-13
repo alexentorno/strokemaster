@@ -1,9 +1,9 @@
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/base/screens/home/home_screen.dart';
+import 'package:flutter_demo/base/screens/log/progress_log_screen.dart';
 import 'package:flutter_demo/base/screens/profile/profile_screen.dart';
 import 'package:flutter_demo/base/screens/search/search_screen.dart';
-import 'package:flutter_demo/base/screens/ticket_data/ticket_screen.dart';
 import 'package:flutter_demo/base/util/styles/app_styles.dart';
 import 'package:flutter_demo/controllers/bottom_nav_controller.dart';
 import 'package:get/get.dart';
@@ -18,7 +18,7 @@ class BottomNavBar extends StatelessWidget {
   final appScreens = [
     const HomeScreen(),
     const SearchScreen(),
-    const TicketScreen(),
+    const ProgressLogScreen(),
     const ProfileScreen()
   ];
 
@@ -28,9 +28,11 @@ class BottomNavBar extends StatelessWidget {
   // void _onItemTapped(int index) {
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Obx(() {
         return Scaffold(
-        backgroundColor: AppStyles.bgColor,
+        backgroundColor: theme.canvasColor,
         body: appScreens[controller.selectedIndex.value],
         bottomNavigationBar: BottomNavigationBar(
 
@@ -57,8 +59,8 @@ class BottomNavBar extends StatelessWidget {
                 label: 'Search'),
           
             BottomNavigationBarItem(
-                icon: Icon(FluentSystemIcons.ic_fluent_ticket_regular),
-                activeIcon: Icon(FluentSystemIcons.ic_fluent_ticket_filled),
+                icon: Icon(Icons.collections_bookmark_outlined),
+                activeIcon: Icon(Icons.collections_bookmark_rounded),
                 label: 'Tickets'),
           
             BottomNavigationBarItem(
