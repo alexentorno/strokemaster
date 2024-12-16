@@ -40,6 +40,9 @@ dependencies:
   get: ^4.6.6
   provider: ^6.1.2
   shared_preferences: ^2.3.3
+  http: ^1.2.2
+  youtube_player_flutter: ^9.1.1
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
@@ -98,3 +101,7 @@ flutter:
     - family: Righteous
       fonts:
         - asset: assets/fonts/Righteous-Regular.ttf
+
+    - family: SofiaSansBold
+      fonts:
+        - asset: assets/fonts/SofiaSans-Bold.ttf

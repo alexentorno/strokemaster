@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/base/util/app_routes.dart';
-import 'package:flutter_demo/base/util/media.dart';
-import 'package:flutter_demo/base/util/styles/app_styles.dart';
-import 'package:flutter_demo/base/widgets/title_and_link_widget.dart';
-import 'package:flutter_demo/base/widgets/heading_text.dart';
+import 'package:stroke_master/base/widgets/show_logo.dart';
+import '/base/util/app_routes.dart';
+import '/base/util/styles/app_styles.dart';
+import '/base/widgets/title_and_link_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -19,10 +18,7 @@ class HomeScreen extends StatelessWidget {
         // ListView insists to have only Widget
         // type items, so it can be also scrollable
         children: [
-          Center(
-            child: Text("StrokeMaster",
-            style: AppStyles.logoTitleStyle.copyWith(color: theme.primaryColor),),
-          ),
+          const ShowLogo(),
           const SizedBox(
             height: 15,
           ),
@@ -53,7 +49,7 @@ class HomeScreen extends StatelessWidget {
                   title: 'Upcoming Flights',
                   details: 'View all',
                   func: () =>
-                      Navigator.pushNamed(context, AppRoutes.loginPage),
+                      Navigator.pushNamed(context, AppRoutes.viewAllTodaysTopExercises),
                 ),
                 const SizedBox(height: 20),
                 SingleChildScrollView(

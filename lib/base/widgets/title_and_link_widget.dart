@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/base/util/styles/app_styles.dart';
+import '/base/util/styles/app_styles.dart';
 
 class TitleAndLinkWidget extends StatelessWidget {
 

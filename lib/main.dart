@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/base/bottom_nav_bar.dart';
-import 'package:flutter_demo/base/screens/login/login_screen.dart';
-import 'package:flutter_demo/base/util/app_routes.dart';
-import 'package:flutter_demo/theme/theme.dart';
+
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+
+import 'base/bottom_nav_bar.dart';
+import 'base/screens/home/view_all_videos_screen.dart';
+import 'base/screens/login/login_screen.dart';
+import 'base/util/app_routes.dart';
+import 'theme/theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,9 +32,7 @@ class MyApp extends StatelessWidget {
             routes: {
               AppRoutes.homePage: (context) => BottomNavBar(),
               AppRoutes.loginPage: (context) => LoginScreen(),
-              // AppRoutes.allVideos: (context) => const ViewAllVideosScreen(),
-              // AppRoutes.ticketScreen: (context) => const TicketScreen(),
-              // AppRoutes.hotelDetail: (context) => const HotelScreen(),
+              AppRoutes.viewAllTodaysTopExercises: (context) => const ViewAllVideosScreen(),
             },
           );
         }

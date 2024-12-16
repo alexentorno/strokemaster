@@ -1,10 +1,12 @@
 import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/base/util/media.dart';
-import 'package:flutter_demo/base/util/styles/app_styles.dart';
-import 'package:flutter_demo/base/widgets/heading_text.dart';
-import 'package:flutter_demo/theme/theme.dart';
+import '/base/util/media.dart';
+import '/base/util/styles/app_styles.dart';
+import '/base/widgets/heading_text.dart';
+import '/theme/theme.dart';
 import 'package:provider/provider.dart';
+
+import 'widgets/change_theme_toggle_text_with_button_widget.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -85,24 +87,9 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(
             height: 8,
           ),
-          Consumer<ThemeProvider>(
-              builder: (context, ThemeProvider notifier, child) {
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: notifier.isDark? Icon(Icons.dark_mode) : Icon(Icons.light_mode),
-                      title: Text("Toggle dark/light mode"),
-                      trailing: Switch(
-                          value: notifier.isDark,
-                          onChanged: (value){
-                            notifier.changeTheme();
-                          }),
-                    )
-                  ],
-                );
-              }
-          ),
-          // award box
+
+          ChangeThemeToggleTextWithButton(),
+
           const SizedBox(
             height: 25,
           ),

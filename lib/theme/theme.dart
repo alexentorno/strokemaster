@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_demo/base/util/styles/app_styles.dart';
+import '/base/util/styles/app_styles.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -13,8 +13,10 @@ class ThemeProvider extends ChangeNotifier {
 
 // Custom dark theme
   final darkTheme = ThemeData(
+    disabledColor:const Color.fromARGB(55, 189, 189, 189),
+    hintColor: AppStyles.textColorDark,
     highlightColor: AppStyles.linkColorDark,
-    primaryColorLight: AppStyles.textColorDark,
+    primaryColorLight: AppStyles.textColorDark, // Bottom navbar icon selected
     canvasColor: AppStyles.bottomNavBarColorDark, // Bottom navbar background color
     appBarTheme: AppBarTheme(color: AppStyles.bgColorDark),
     scaffoldBackgroundColor: AppStyles.bgColorDark,
@@ -24,6 +26,8 @@ class ThemeProvider extends ChangeNotifier {
   );
 // Custom light theme
   final lightTheme = ThemeData(
+    disabledColor:const Color.fromARGB(55, 23, 23, 23),
+    hintColor: AppStyles.textColor,
     highlightColor: AppStyles.linkColor,
     primaryColorLight: AppStyles.textColor,
     canvasColor: AppStyles.bottomNavBarColor, // Bottom navbar background color
