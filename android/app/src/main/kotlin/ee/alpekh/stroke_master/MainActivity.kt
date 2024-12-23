@@ -1,4 +1,4 @@
-package com.example.flutter_demo
+package ee.alpekh.stroke_master
 
 import io.flutter.embedding.android.FlutterActivity
 

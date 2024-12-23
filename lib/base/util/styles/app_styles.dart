@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+@immutable
 class AppStyles {
 
   static const String logoFontFamily = 'Righteous';

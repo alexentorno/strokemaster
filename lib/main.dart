@@ -1,43 +1,40 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-
-import 'base/bottom_nav_bar.dart';
-import 'base/screens/home/view_all_videos_screen.dart';
+import 'package:stroke_master/base/bottom_nav_bar.dart';
+import 'package:stroke_master/base/screens/start_screen.dart';
+import 'package:stroke_master/base/util/app_routes.dart';
+import 'package:stroke_master/firebase_options.dart';
+import 'package:stroke_master/state/auth/providers/is_logged_in_provider.dart';
 import 'base/screens/login/login_screen.dart';
-import 'base/util/app_routes.dart';
-import 'theme/theme.dart';
+import 'theme/theme_notifier.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+// Define a provider for ThemeNotifier
+final themeNotifierProvider = ChangeNotifierProvider((ref) => ThemeNotifier()..init());
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeNotifier = ref.watch(themeNotifierProvider);
 
-    return ChangeNotifierProvider(
-      create: (BuildContext context) => ThemeProvider()..init(),
-      child: Consumer<ThemeProvider>(
-        builder: (context, ThemeProvider notifier, child) {
-          return GetMaterialApp(
-            title: "StrokeMaster",
-            themeMode: notifier.isDark? ThemeMode.dark : ThemeMode.light,
-            darkTheme: notifier.darkTheme,
-            theme: notifier.lightTheme,
-            debugShowCheckedModeBanner: false,
-            routes: {
-              AppRoutes.homePage: (context) => BottomNavBar(),
-              AppRoutes.loginPage: (context) => LoginScreen(),
-              AppRoutes.viewAllTodaysTopExercises: (context) => const ViewAllVideosScreen(),
-            },
-          );
-        }
-      ),
+    return MaterialApp.router(
+      routerConfig: router,
+      title: "StrokeMaster",
+      themeMode: themeNotifier.isDark ? ThemeMode.dark : ThemeMode.light,
+      darkTheme: themeNotifier.darkTheme,
+      theme: themeNotifier.lightTheme,
+      debugShowCheckedModeBanner: false,
     );
   }
 }
-

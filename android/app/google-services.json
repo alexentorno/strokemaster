@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "846534950509",
+    "project_id": "strokemaster-ad8e6",
+    "storage_bucket": "strokemaster-ad8e6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:846534950509:android:1d624ae09a02e8e9bd0964",
+        "android_client_info": {
+          "package_name": "ee.alpekh.stroke_master"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4FGnzVcx0HA0B_yq-FJWsL4b5zPlzS6c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
