@@ -1,4 +1,6 @@
 
+import 'package:stroke_master/base/models/rules/assign_video_logic.dart';
+
 class Video {
   final String id;
   final String name;
@@ -14,27 +16,29 @@ class Video {
     required this.difficulty,
   });
 
-  factory Video.fromJson(Map<String, dynamic> json) {
+  factory Video.fromJsonSearchVideos(Map<String, dynamic> json) {
     print(json);
     final snippet = json['snippet'];
+    final title = snippet['title'];
     return Video(
       id: json['id']['videoId'],
-      name: snippet['title'],
+      name: title,
       thumbnailUrl: snippet['thumbnails']['high']['url'],
-      where: 'On Water', // Example criteria, you can add custom logic
-      difficulty: 'Advanced', // Example difficulty, adjust per criteria
+      where: assignWhere(title),
+      difficulty: assignDifficulty(title),
     );
   }
 
-  factory Video.fromJson2(Map<String, dynamic> json) {
+  factory Video.fromJsonPlaylistItem(Map<String, dynamic> json) {
     print(json);
     final snippet = json['snippet'];
+    final title = snippet['title'];
     return Video(
       id: snippet['resourceId']['videoId'],
-      name: snippet['title'],
+      name: title,
       thumbnailUrl: snippet['thumbnails']['high']['url'],
-      where: 'On Water', // Example criteria, you can add custom logic
-      difficulty: 'Advanced', // Example difficulty, adjust per criteria
+      where: assignWhere(title),
+      difficulty: assignDifficulty(title),
     );
   }
 }

@@ -1,13 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
-import 'package:stroke_master/base/bottom_nav_bar.dart';
-import 'package:stroke_master/base/screens/start_screen.dart';
 import 'package:stroke_master/base/util/app_routes.dart';
 import 'package:stroke_master/firebase_options.dart';
-import 'package:stroke_master/state/auth/providers/is_logged_in_provider.dart';
-import 'base/screens/login/login_screen.dart';
+
 import 'theme/theme_notifier.dart';
 
 void main() async {

@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import '/base/util/styles/app_styles.dart';
 
 class TitleAndLinkWidget extends StatelessWidget {
-
   final String title;
   final String details;
-  final VoidCallback func;
+  final VoidCallback? func;
 
-  const TitleAndLinkWidget({super.key,
-                      required this.title, 
-                      required this.details,
-                      required this.func});
+  const TitleAndLinkWidget({
+    super.key,
+    required this.title,
+    this.details = "",
+    this.func,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +20,23 @@ class TitleAndLinkWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: AppStyles.headlineStyle2.copyWith(color: theme.primaryColorLight)),
-        InkWell(
-          onTap: func,
-          child: Text(details, style: AppStyles.linkStyle.copyWith(color: theme.highlightColor)),
-        )
+        Text(
+          title,
+          style: AppStyles.mediumTextStyle.copyWith(
+            color: theme.primaryColorLight,
+            fontSize: 26,
+          ),
+        ),
+        if (details.isNotEmpty)
+          InkWell(
+            onTap: func ?? () {},
+            child: Text(
+              details,
+              style: AppStyles.linkStyle.copyWith(
+                color: theme.highlightColor,
+              ),
+            ),
+          ),
       ],
     );
   }

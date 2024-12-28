@@ -25,6 +25,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  bool _isPasswordVisible = false;
 
   @override
   void dispose() {
@@ -108,6 +109,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   controller: _nameController,
                   decoration: InputDecoration(
                     labelText: "Full Name *",
+                    labelStyle: AppStyles.mediumTextStyle.copyWith(
+                      fontSize: 16,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -119,6 +123,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   controller: _emailController,
                   decoration: InputDecoration(
                     labelText: "Email *",
+                    labelStyle: AppStyles.mediumTextStyle.copyWith(
+                      fontSize: 16,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -128,13 +135,25 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const SizedBox(height: 15),
                 TextFormField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible,
                   decoration: InputDecoration(
                     labelText: "Password *",
+                    labelStyle: AppStyles.mediumTextStyle.copyWith(
+                      fontSize: 16,
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    suffixIcon: const Icon(Icons.visibility),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
+                    ),
                   ),
                   validator: Validator.validatePassword,
                 ),
@@ -142,11 +161,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
+                    backgroundColor: theme.primaryColor,
                   ),
                   onPressed: authProvider.isLoading ? null : _attemptRegister,
-                  child: authProvider.isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text("Register"),
+                  child: Text("Register",
+                      style: AppStyles.mediumTextStyle.copyWith(
+                        color: Colors.white,
+                      )),
                 ),
               ],
             ),

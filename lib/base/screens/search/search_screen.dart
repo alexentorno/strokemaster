@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:stroke_master/base/animation/loading_animation_screen.dart';
 import 'package:stroke_master/base/models/video.dart';
 import 'package:stroke_master/base/screens/search/widgets/custom_filter_chips_widget.dart';
 import 'package:stroke_master/base/screens/search/widgets/video_icon.dart';
@@ -177,7 +178,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
                   // Loading Indicator
                   if (_isLoading)
-                    const Center(child: CircularProgressIndicator()),
+                    SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.3,
+                        child: const Center(child: LoadingAnimationScreen())),
 
                   // Video List
                   if (_videos.isEmpty && !_isLoading)

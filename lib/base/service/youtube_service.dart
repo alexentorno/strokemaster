@@ -15,7 +15,7 @@ class YouTubeApiService {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final List<dynamic> items = data['items'];
-      return items.map((item) => Video.fromJson2(item)).toList();
+      return items.map((item) => Video.fromJsonPlaylistItem(item)).toList();
     } else {
       throw Exception('Failed to load videos');
     }
@@ -28,7 +28,7 @@ class YouTubeApiService {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final List<dynamic> items = data['items'];
-      return items.map((item) => Video.fromJson(item)).toList();
+      return items.map((item) => Video.fromJsonSearchVideos(item)).toList();
     } else {
       throw Exception('Failed to load videos');
     }

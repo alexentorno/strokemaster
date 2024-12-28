@@ -19,6 +19,8 @@ mixin _$AuthState {
   AuthResult? get result => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   String? get userId => throw _privateConstructorUsedError;
+  String? get email => throw _privateConstructorUsedError;
+  String? get displayName => throw _privateConstructorUsedError;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -32,7 +34,12 @@ abstract class $AuthStateCopyWith<$Res> {
   factory $AuthStateCopyWith(AuthState value, $Res Function(AuthState) then) =
       _$AuthStateCopyWithImpl<$Res, AuthState>;
   @useResult
-  $Res call({AuthResult? result, bool isLoading, String? userId});
+  $Res call(
+      {AuthResult? result,
+      bool isLoading,
+      String? userId,
+      String? email,
+      String? displayName});
 }
 
 /// @nodoc
@@ -53,6 +60,8 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
     Object? result = freezed,
     Object? isLoading = null,
     Object? userId = freezed,
+    Object? email = freezed,
+    Object? displayName = freezed,
   }) {
     return _then(_value.copyWith(
       result: freezed == result
@@ -67,6 +76,14 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String?,
+      email: freezed == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+      displayName: freezed == displayName
+          ? _value.displayName
+          : displayName // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -79,7 +96,12 @@ abstract class _$$AuthStateImplCopyWith<$Res>
       __$$AuthStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({AuthResult? result, bool isLoading, String? userId});
+  $Res call(
+      {AuthResult? result,
+      bool isLoading,
+      String? userId,
+      String? email,
+      String? displayName});
 }
 
 /// @nodoc
@@ -98,6 +120,8 @@ class __$$AuthStateImplCopyWithImpl<$Res>
     Object? result = freezed,
     Object? isLoading = null,
     Object? userId = freezed,
+    Object? email = freezed,
+    Object? displayName = freezed,
   }) {
     return _then(_$AuthStateImpl(
       result: freezed == result
@@ -112,6 +136,14 @@ class __$$AuthStateImplCopyWithImpl<$Res>
           ? _value.userId
           : userId // ignore: cast_nullable_to_non_nullable
               as String?,
+      email: freezed == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+      displayName: freezed == displayName
+          ? _value.displayName
+          : displayName // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -120,7 +152,11 @@ class __$$AuthStateImplCopyWithImpl<$Res>
 
 class _$AuthStateImpl extends _AuthState {
   const _$AuthStateImpl(
-      {required this.result, required this.isLoading, required this.userId})
+      {required this.result,
+      required this.isLoading,
+      required this.userId,
+      required this.email,
+      required this.displayName})
       : super._();
 
   @override
@@ -129,10 +165,14 @@ class _$AuthStateImpl extends _AuthState {
   final bool isLoading;
   @override
   final String? userId;
+  @override
+  final String? email;
+  @override
+  final String? displayName;
 
   @override
   String toString() {
-    return 'AuthState(result: $result, isLoading: $isLoading, userId: $userId)';
+    return 'AuthState(result: $result, isLoading: $isLoading, userId: $userId, email: $email, displayName: $displayName)';
   }
 
   @override
@@ -143,11 +183,15 @@ class _$AuthStateImpl extends _AuthState {
             (identical(other.result, result) || other.result == result) &&
             (identical(other.isLoading, isLoading) ||
                 other.isLoading == isLoading) &&
-            (identical(other.userId, userId) || other.userId == userId));
+            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.displayName, displayName) ||
+                other.displayName == displayName));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, result, isLoading, userId);
+  int get hashCode =>
+      Object.hash(runtimeType, result, isLoading, userId, email, displayName);
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -162,7 +206,9 @@ abstract class _AuthState extends AuthState {
   const factory _AuthState(
       {required final AuthResult? result,
       required final bool isLoading,
-      required final String? userId}) = _$AuthStateImpl;
+      required final String? userId,
+      required final String? email,
+      required final String? displayName}) = _$AuthStateImpl;
   const _AuthState._() : super._();
 
   @override
@@ -171,6 +217,10 @@ abstract class _AuthState extends AuthState {
   bool get isLoading;
   @override
   String? get userId;
+  @override
+  String? get email;
+  @override
+  String? get displayName;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.

@@ -11,6 +11,8 @@ class AuthState with _$AuthState {
     required AuthResult? result,
     required bool isLoading,
     required UserId? userId,
+    required String? email,
+    required String? displayName,
   }) = _AuthState;
 
   const AuthState._(); //private constructor for custom widgets
@@ -19,5 +21,7 @@ class AuthState with _$AuthState {
     result: null,
     isLoading: false,
     userId: null,
+    email: '',
+    displayName: '',
   );
 }

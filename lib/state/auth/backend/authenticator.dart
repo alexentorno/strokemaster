@@ -7,6 +7,8 @@ class Authenticator {
   const Authenticator();
 
   UserId? get userId => FirebaseAuth.instance.currentUser?.uid;
+  String? get email => FirebaseAuth.instance.currentUser?.email;
+  String? get displayName => FirebaseAuth.instance.currentUser?.displayName;
 
   bool get isAlreadyLoggedIn => userId != null;
 

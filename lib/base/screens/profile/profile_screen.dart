@@ -2,6 +2,7 @@ import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stroke_master/main.dart';
+import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
 import '/base/util/media.dart';
 import '/base/util/styles/app_styles.dart';
 import '/base/widgets/heading_text.dart';
@@ -16,6 +17,11 @@ class ProfileScreen extends ConsumerWidget {
     // Access the current theme using Riverpod
     final themeNotifier = ref.watch(themeNotifierProvider);
     final theme = themeNotifier.isDark ? themeNotifier.darkTheme : themeNotifier.lightTheme;
+
+    final authState = ref.watch(authenticationProvider);
+
+    print(authState.displayName); //null
+    print(authState.email); // correct email
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -48,12 +54,12 @@ class ProfileScreen extends ConsumerWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const HeadingText(
-                        text: "Alexander Pekhenko", // TODO: User's first and last name
+                      HeadingText(
+                        text: authState.displayName ?? "Unknown_user", // TODO: User's first and last name
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        "alexpekhenko@gmail.com", // TODO: User's email
+                        authState.email ?? "Unknown_email", // TODO: User's email
                         style: TextStyle(
                           color: theme.primaryColorLight,
                           fontSize: 16,
