@@ -17,7 +17,7 @@ class BottomNavBar extends StatelessWidget {
   final appScreens = [
     const HomeScreen(),
     const SearchScreen(),
-    const ProgressLogScreen(),
+    const LogsScreen(),
     const ProfileScreen()
   ];
   

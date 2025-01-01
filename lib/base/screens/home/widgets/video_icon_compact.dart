@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stroke_master/base/models/video.dart';
 import 'package:stroke_master/base/screens/search/video_screen.dart';
+import 'package:stroke_master/base/service/firestore_video_service.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
+import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
 
-class VideoIconCompact extends StatefulWidget {
+
+class VideoIconCompact extends ConsumerStatefulWidget {
   final Video video;
 
   const VideoIconCompact({
@@ -15,33 +19,95 @@ class VideoIconCompact extends StatefulWidget {
   _VideoIconCompactState createState() => _VideoIconCompactState();
 }
 
-class _VideoIconCompactState extends State<VideoIconCompact> {
-  bool isLiked = false;
-  bool isDisliked = false;
-  bool isFavorited = false;
+class _VideoIconCompactState extends ConsumerState<VideoIconCompact> {
+  late bool isLiked;
+  late bool isDisliked;
+  late bool isFavorited;
+  late String userId;
+  late VideoService videoService;
+
+  @override
+  void initState() {
+    super.initState();
+    isLiked = widget.video.isLiked;
+    isDisliked = widget.video.isDisliked;
+    isFavorited = widget.video.isFavorite;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    userId = ref.watch(authenticationProvider).userId ?? "";
+    if (userId.isNotEmpty) {
+      videoService = VideoService(userId: userId);
+      _loadInitialPreferences();
+    }
+  }
+
+  void _loadInitialPreferences() async {
+    await videoService.loadInitialPreferences(
+      videoId: widget.video.id,
+      setLiked: (liked) => setState(() => isLiked = liked),
+      setDisliked: (disliked) => setState(() => isDisliked = disliked),
+      setLikes: (likes) => setState(() => widget.video.likes = likes),
+      setDislikes: (dislikes) => setState(() => widget.video.dislikes = dislikes),
+      setFavorited: (favorited) => setState(() => isFavorited = favorited),
+    );
+  }
+
+  void _updateLikeDislikeState() async {
+    await videoService.updateLikeDislikeState(
+      videoId: widget.video.id,
+      liked: isLiked,
+      disliked: isDisliked,
+      likes: widget.video.likes,
+      dislikes: widget.video.dislikes,
+    );
+  }
 
   void toggleLike() {
     setState(() {
       isLiked = !isLiked;
       if (isLiked) {
-        isDisliked = false; // Cannot like and dislike at the same time
+        widget.video.likes++;
+        if (isDisliked) {
+          widget.video.dislikes--;
+          isDisliked = false;
+        }
+      } else {
+        widget.video.likes--;
       }
     });
+
+    _updateLikeDislikeState();
   }
 
   void toggleDislike() {
     setState(() {
       isDisliked = !isDisliked;
       if (isDisliked) {
-        isLiked = false; // Cannot like and dislike at the same time
+        widget.video.dislikes++;
+        if (isLiked) {
+          widget.video.likes--;
+          isLiked = false;
+        }
+      } else {
+        widget.video.dislikes--;
       }
     });
+    _updateLikeDislikeState();
   }
 
   void toggleFavorite() {
     setState(() {
       isFavorited = !isFavorited;
+      widget.video.isFavorite = isFavorited;
     });
+
+    videoService.updateFavoriteState(
+      videoId: widget.video.id,
+      isFavorite: isFavorited,
+    );
   }
 
   @override
@@ -60,7 +126,7 @@ class _VideoIconCompactState extends State<VideoIconCompact> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Thumbnail
+              // Thumbnail and Favorite icon
               Stack(
                 children: [
                   Container(
@@ -138,8 +204,14 @@ class _VideoIconCompactState extends State<VideoIconCompact> {
                           icon: Icon(
                             isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
                             color: isLiked
-                            ? theme.primaryColor
-                            : theme.primaryColorLight,
+                                ? theme.primaryColor
+                                : theme.primaryColorLight,
+                          ),
+                        ),
+                        Text(
+                          '${widget.video.likes}', // Display likes count
+                          style: AppStyles.mediumTextStyle.copyWith(
+                            color: theme.primaryColorLight,
                           ),
                         ),
                         IconButton(
@@ -153,10 +225,14 @@ class _VideoIconCompactState extends State<VideoIconCompact> {
                                 : theme.primaryColorLight,
                           ),
                         ),
+                        Text(
+                          '${widget.video.dislikes}',
+                          style: AppStyles.mediumTextStyle.copyWith(
+                            color: theme.primaryColorLight,
+                          ),
+                        ),
                       ],
                     ),
-
-                    // const SizedBox(height: 5),
 
                     // Watch Video Button
                     Container(
@@ -191,4 +267,10 @@ class _VideoIconCompactState extends State<VideoIconCompact> {
       ),
     );
   }
+}
+
+class AuthState {
+  final String? userId;
+
+  AuthState({this.userId});
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stroke_master/base/animation/loading_animation_screen.dart';
 import 'package:stroke_master/base/models/video.dart';
 import 'package:stroke_master/base/screens/search/widgets/custom_filter_chips_widget.dart';
@@ -8,19 +9,24 @@ import 'package:stroke_master/base/screens/search/widgets/video_icon.dart';
 import 'package:stroke_master/base/service/youtube_service.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
 import 'package:stroke_master/base/widgets/show_logo.dart';
+import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
 
-class SearchScreen extends StatefulWidget {
+// Assuming you have a provider for fetching videos
+final videoProvider = FutureProvider<List<Video>>((ref) async {
+  final userId = ref.watch(authenticationProvider).userId ?? "";
+  final apiService = YouTubeApiService();
+  return await apiService.fetchVideosWithPreferences(userId);
+});
+
+class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key});
 
   @override
-  State<SearchScreen> createState() => _SearchScreenState();
+  ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-  final YouTubeApiService _apiService = YouTubeApiService();
-  List<Video> _videos = [];
-  bool _isLoading = false;
 
   String searchQuery = "";
   List<String> selectedWhere = [];
@@ -37,52 +43,19 @@ class _SearchScreenState extends State<SearchScreen> {
       setState(() {
         searchQuery = _searchController.text;
       });
-      _searchVideos();
     });
   }
 
-
-  void _searchVideos() async {
+  void _searchVideos() {
     setState(() {
-      _isLoading = true;
     });
-
-    try {
-      List<Video> videos = [];
-      // Fetch videos from playlists
-      videos.addAll(await _apiService.fetchPlaylistVideos('PLQujqPRf2C8OLp4acePQ67upU14NfwbQN'));
-      videos.addAll(await _apiService.fetchPlaylistVideos('PLQujqPRf2C8MWZkZ9N24b8UwhZijF3QN2'));
-      videos.addAll(await _apiService.fetchPlaylistVideos('PLU8uVkF9zP5T8LCIBzXDPcFWpJ163nOGK'));
-
-      // Apply filters and search query
-      final filteredVideos = videos.where((video) {
-        final matchesWhere = selectedWhere.isEmpty || selectedWhere.contains(video.where);
-        final matchesDifficulty = selectedDifficulty.isEmpty || selectedDifficulty.contains(video.difficulty);
-        final matchesSearchQuery = searchQuery.isEmpty ||
-            video.name.toLowerCase().contains(searchQuery.toLowerCase());
-        return matchesWhere && matchesDifficulty && matchesSearchQuery;
-      }).toList();
-
-      setState(() {
-        _videos = filteredVideos;
-      });
-    } catch (e) {
-      print('Error fetching videos: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
-
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    _searchVideos(); // Fetch videos on screen load
   }
-
 
   @override
   void dispose() {
@@ -94,6 +67,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final videoAsync = ref.watch(videoProvider);
 
     return Container(
       color: theme.scaffoldBackgroundColor,
@@ -177,13 +151,25 @@ class _SearchScreenState extends State<SearchScreen> {
                   const SizedBox(height: 15),
 
                   // Loading Indicator
-                  if (_isLoading)
+                  if (videoAsync.isLoading)
                     SizedBox(
                         height: MediaQuery.of(context).size.height * 0.3,
                         child: const Center(child: LoadingAnimationScreen())),
 
                   // Video List
-                  if (_videos.isEmpty && !_isLoading)
+                  if (videoAsync.hasError)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Center(
+                        child: Text(
+                          "Error loading videos 😔",
+                          style: AppStyles.mediumTextStyle.copyWith(
+                            color: theme.primaryColorLight,
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (videoAsync.hasValue && videoAsync.value?.isEmpty == true)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Center(
@@ -195,19 +181,22 @@ class _SearchScreenState extends State<SearchScreen> {
                         ),
                       ),
                     )
-                  else
-                    ListView.builder(
-                      shrinkWrap: true, // List only takes needed space
-                      physics: const NeverScrollableScrollPhysics(), // Disable scrolling within the list
-                      itemCount: _videos.length,
-                      itemBuilder: (context, index) {
-                        final video = _videos[index];
-                        return VideoItem(
-                          video: video,
-                          theme: theme,
-                        );
-                      },
-                    ),
+                  else if (videoAsync.hasValue)
+                      ListView.builder(
+                        shrinkWrap: true, // List only takes needed space
+                        physics: const NeverScrollableScrollPhysics(), // Disable scrolling within the list
+                        itemCount: videoAsync.value?.length ?? 0,
+                        itemBuilder: (context, index) {
+                          final video = videoAsync.value![index];
+
+                          return VideoIcon(
+                            video: video,
+                            theme: theme,
+                            userId: ref.watch(authenticationProvider).userId ?? "",
+                          );
+                        },
+                      ),
+
                 ]),
               ),
             ],

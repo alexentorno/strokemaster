@@ -1,22 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:stroke_master/base/models/video.dart';
 import 'package:stroke_master/base/screens/search/video_screen.dart';
+import 'package:stroke_master/base/service/firestore_video_service.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
 
-class VideoItem extends StatefulWidget {
+class VideoIcon extends StatefulWidget {
   final Video video;
   final ThemeData theme;
+  final String userId;
 
-  const VideoItem({super.key, required this.video, required this.theme});
+  const VideoIcon({
+    super.key,
+    required this.video,
+    required this.theme,
+    required this.userId,
+  });
 
   @override
-  State<VideoItem> createState() => _VideoItemState();
+  State<VideoIcon> createState() => _VideoIconState();
 }
 
-class _VideoItemState extends State<VideoItem> {
+class _VideoIconState extends State<VideoIcon> {
+  late VideoService videoService;
   bool isLiked = false;
   bool isDisliked = false;
   bool isFavorited = false;
+  int likes = 0;
+  int dislikes = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    videoService = VideoService(userId: widget.userId);
+
+    // Load initial preferences and set states
+    videoService.loadInitialPreferences(
+      videoId: widget.video.id,
+      setLiked: (value) => setState(() => isLiked = value),
+      setDisliked: (value) => setState(() => isDisliked = value),
+      setLikes: (value) => setState(() => likes = value),
+      setDislikes: (value) => setState(() => dislikes = value),
+      setFavorited: (value) => setState(() => isFavorited = value),
+    );
+  }
+
+  void toggleLike() {
+    setState(() {
+      isLiked = !isLiked;
+      if (isLiked) {
+        likes++;
+        if (isDisliked) {
+          dislikes--;
+          isDisliked = false;
+        }
+      } else {
+        likes--;
+      }
+
+    });
+
+    videoService.updateLikeDislikeState(
+      videoId: widget.video.id,
+      liked: isLiked,
+      disliked: isDisliked,
+      likes: likes,
+      dislikes: dislikes,
+    );
+  }
+
+  void toggleDislike() {
+    setState(() {
+      isDisliked = !isDisliked;
+      if (isDisliked) {
+        dislikes++;
+        if (isLiked) {
+          likes--;
+          isLiked = false;
+        }
+      } else {
+        dislikes--;
+      }
+    });
+
+    videoService.updateLikeDislikeState(
+      videoId: widget.video.id,
+      liked: isLiked,
+      disliked: isDisliked,
+      likes: likes,
+      dislikes: dislikes,
+    );
+  }
+
+  void toggleFavorite() {
+    setState(() => isFavorited = !isFavorited);
+
+    videoService.updateFavoriteState(
+      videoId: widget.video.id,
+      isFavorite: isFavorited,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +109,7 @@ class _VideoItemState extends State<VideoItem> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(20),
         child: Container(
-            color: widget.theme.scaffoldBackgroundColor,
+          color: widget.theme.scaffoldBackgroundColor,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -53,41 +135,15 @@ class _VideoItemState extends State<VideoItem> {
                     ),
                     const SizedBox(height: 8),
 
-                    // Where
-                    Text(
-                      "Where: ${widget.video.where}",
-                      style: AppStyles.mediumTextStyle.copyWith(
-                        fontSize: 16,
-                        color: widget.theme.primaryColorLight,
-                      ),
-                    ),
-
-                    // Difficulty
-                    const SizedBox(height: 15),
-                    Text(
-                      "Difficulty: ${widget.video.difficulty}",
-                      style: AppStyles.mediumTextStyle.copyWith(
-                        fontSize: 16,
-                        color: widget.theme.primaryColorLight,
-                      ),
-                    ),
-
-                    const SizedBox(height: 15),
-
-                    // Buttons Row
+                    // Like, Dislike, and Favorite Buttons Row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Like and Dislike Buttons
+                        // Like and Dislike Buttons with Counts
                         Row(
                           children: [
                             IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isLiked = !isLiked;
-                                  if (isLiked) isDisliked = false; // Ensure dislike is deactivated
-                                });
-                              },
+                              onPressed: toggleLike,
                               icon: Icon(
                                 isLiked
                                     ? Icons.thumb_up_alt
@@ -97,13 +153,10 @@ class _VideoItemState extends State<VideoItem> {
                                     : widget.theme.primaryColorLight,
                               ),
                             ),
+                            Text('$likes', style: AppStyles.mediumTextStyle),
+                            const SizedBox(width: 10),
                             IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  isDisliked = !isDisliked;
-                                  if (isDisliked) isLiked = false; // Ensure like is deactivated
-                                });
-                              },
+                              onPressed: toggleDislike,
                               icon: Icon(
                                 isDisliked
                                     ? Icons.thumb_down_alt
@@ -113,26 +166,16 @@ class _VideoItemState extends State<VideoItem> {
                                     : widget.theme.primaryColorLight,
                               ),
                             ),
+                            Text('$dislikes', style: AppStyles.mediumTextStyle),
                           ],
                         ),
 
                         // Add to Favorites Button
-                        TextButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              isFavorited = !isFavorited;
-                            });
-                          },
+                        IconButton(
+                          onPressed: toggleFavorite,
                           icon: Icon(
                             isFavorited ? Icons.favorite : Icons.favorite_border,
                             color: Colors.green,
-                          ),
-                          label: Text(
-                            isFavorited ? "Favorited" : "Add to Favorites",
-                            style: AppStyles.mediumTextStyle.copyWith(
-                              fontSize: 16,
-                              color: Colors.green,
-                            ),
                           ),
                         ),
                       ],

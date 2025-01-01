@@ -20,9 +20,6 @@ class ProfileScreen extends ConsumerWidget {
 
     final authState = ref.watch(authenticationProvider);
 
-    print(authState.displayName); //null
-    print(authState.email); // correct email
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(

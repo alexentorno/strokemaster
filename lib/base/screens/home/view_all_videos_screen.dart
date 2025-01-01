@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stroke_master/base/screens/home/home_screen.dart';
 import 'package:stroke_master/base/screens/search/widgets/video_icon.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
+import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
 
 class ViewAllVideosScreen extends ConsumerWidget {
   const ViewAllVideosScreen({super.key});
@@ -10,9 +11,8 @@ class ViewAllVideosScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-
-    // Watch the videosProvider
-    final videosAsyncValue = ref.watch(videosProvider);
+    final videosAsyncValue = ref.watch(videoProvider);
+    final userId = ref.watch(authenticationProvider).userId ?? "";
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -28,7 +28,7 @@ class ViewAllVideosScreen extends ConsumerWidget {
           itemCount: videos.length,
           itemBuilder: (context, index) {
             final video = videos[index];
-            return VideoItem(video: video, theme: theme);
+            return VideoIcon(video: video, theme: theme, userId: userId);
           },
         ),
         loading: () => const Center(

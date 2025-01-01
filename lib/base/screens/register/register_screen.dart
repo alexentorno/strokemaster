@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -42,7 +41,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       final email = _emailController.text;
       final password = _passwordController.text;
 
-      print('name: $name, email: $email, password: $password');
+      // print('name: $name, email: $email, password: $password');
 
       final authProvider = ref.read(authenticationProvider.notifier);
       await authProvider.registerWithEmailAndPassword(

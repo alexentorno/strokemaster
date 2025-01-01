@@ -13,18 +13,13 @@ import 'package:stroke_master/base/util/styles/app_styles.dart';
 import 'package:stroke_master/base/widgets/show_logo.dart';
 import 'package:stroke_master/base/widgets/title_and_link_widget.dart';
 import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
-import 'package:stroke_master/state/auth/providers/user_id_provider.dart';
 
-// Create a FutureProvider for fetching videos
-final videosProvider = FutureProvider<List<Video>>((ref) async {
-  final YouTubeApiService apiService = YouTubeApiService();
-  List<Video> videos = [];
-  // Fetch videos from playlists
-  videos.addAll(await apiService.fetchPlaylistVideos('PLQujqPRf2C8OLp4acePQ67upU14NfwbQN'));
-  videos.addAll(await apiService.fetchPlaylistVideos('PLQujqPRf2C8MWZkZ9N24b8UwhZijF3QN2'));
-  videos.addAll(await apiService.fetchPlaylistVideos('PLU8uVkF9zP5T8LCIBzXDPcFWpJ163nOGK'));
-  return videos;
+final videoProvider = FutureProvider<List<Video>>((ref) async {
+  final userId = ref.watch(authenticationProvider).userId ?? "";
+  // print("User ID: $userId");
+  return await YouTubeApiService().fetchVideosWithPreferences(userId);
 });
+
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -55,7 +50,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authenticationProvider);
     final theme = Theme.of(context);
-    final videos = ref.watch(videosProvider);
+    final videos = ref.watch(videoProvider);
     final randomIndex = Random().nextInt(quotes.length);
 
 

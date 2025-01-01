@@ -5,7 +5,7 @@ class VideoScreen extends StatefulWidget {
 
   final String id;
 
-  VideoScreen({required this.id});
+  const VideoScreen({super.key, required this.id});
 
   @override
   _VideoScreenState createState() => _VideoScreenState();
