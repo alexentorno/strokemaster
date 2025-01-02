@@ -16,7 +16,7 @@ import 'package:stroke_master/state/auth/providers/authentication_provider.dart'
 
 final videoProvider = FutureProvider<List<Video>>((ref) async {
   final userId = ref.watch(authenticationProvider).userId ?? "";
-  // print("User ID: $userId");
+
   return await YouTubeApiService().fetchVideosWithPreferences(userId);
 });
 
@@ -86,12 +86,12 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
 
-                // Title and Link
                 TitleAndLinkWidget(
                   title: "Today's Top Exercises",
                   details: 'View all',
                   func: () => router.push("/view_todays_top_exercises"),
                 ),
+
                 const SizedBox(height: 20),
 
                 // Video List
@@ -102,8 +102,7 @@ class HomeScreen extends ConsumerWidget {
                       children: videos
                           .map((video) => VideoIconCompact(
                         video: video,
-                      ))
-                          .toList(),
+                      )).toList(),
                     ),
                   ),
                   loading: () => Center(

@@ -1,68 +1,76 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stroke_master/base/models/video.dart';
 
 class FavoriteVideosNotifier extends StateNotifier<List<Video>> {
   final String userId;
+  late final StreamSubscription _subscription;
 
   FavoriteVideosNotifier(this.userId) : super([]) {
-    fetchFavorites(); // Automatically fetch favorites on initialization.
+    _listenToFavorites();
   }
 
-  Future<void> fetchFavorites() async {
+  void _listenToFavorites() {
     if (userId.isEmpty) return;
 
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
+    _subscription = FirebaseFirestore.instance
+        .collection('favorites')
         .doc(userId)
-        .collection('likedDisliked')
-        .where('isFavorite', isEqualTo: true)
-        .get();
-
-    final favorites = querySnapshot.docs.map((doc) {
-      final data = doc.data();
-      return Video(
-        id: doc.id,
-        name: data['name'] ?? '',
-        thumbnailUrl: data['thumbnailUrl'] ?? '',
-        where: data['where'] ?? 'On Water',
-        difficulty: data['difficulty'] ?? 'Beginner',
-        isFavorite: data['isFavorite'] ?? false,
-        likes: data['likes'] ?? 0,
-        dislikes: data['dislikes'] ?? 0,
-      );
-    }).toList();
-
-    state = favorites; // Update the state with the fetched favorites.
+        .collection('videos')
+        .snapshots()
+        .listen((snapshot) {
+      final List<Video> favorites = snapshot.docs.map((doc) {
+        final data = doc.data();
+        return Video(
+          id: doc.id,
+          name: data['name'] ?? '',
+          thumbnailUrl: data['thumbnailUrl'] ?? '',
+          where: data['where'] ?? 'On Water',
+          difficulty: data['difficulty'] ?? 'Beginner',
+          isFavorite: data['isFavorite'] ?? false,
+          likes: 0, // Likes/dislikes handled separately
+          dislikes: 0,
+        );
+      }).toList();
+      state = favorites;
+    });
   }
 
-
-  // Add a video to favorites (local and Firestore)
   Future<void> addToFavorites(Video video) async {
-    state = [...state, video]; // Update local state.
-
     final docRef = FirebaseFirestore.instance
-        .collection('users')
+        .collection('favorites')
         .doc(userId)
-        .collection('likedDisliked')
+        .collection('videos')
         .doc(video.id);
 
-    await docRef.set({'isFavorite': true}, SetOptions(merge: true));
+    await docRef.set({
+      'name': video.name,
+      'thumbnailUrl': video.thumbnailUrl,
+      'where': video.where,
+      'difficulty': video.difficulty,
+      'isFavorite': true,
+    });
   }
 
-  // Remove a video from favorites (local and Firestore)
   Future<void> removeFromFavorites(Video video) async {
-    state = state.where((v) => v.id != video.id).toList(); // Update local state.
-
     final docRef = FirebaseFirestore.instance
-        .collection('users')
+        .collection('favorites')
         .doc(userId)
-        .collection('likedDisliked')
+        .collection('videos')
         .doc(video.id);
 
-    await docRef.update({'isFavorite': false});
+    await docRef.delete();
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 }
+
 
 // Provider for managing favorite videos
 final favoriteVideosProvider =

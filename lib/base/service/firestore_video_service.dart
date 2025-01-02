@@ -5,7 +5,26 @@ class VideoService {
 
   VideoService({required this.userId});
 
-  // Load the initial preferences (like/dislike state and counts)
+  Future<void> updateLikeDislikeState({
+    required String videoId,
+    required bool liked,
+    required bool disliked,
+    required int likes,
+    required int dislikes,
+  }) async {
+    final globalDocRef = FirebaseFirestore.instance.collection('likesDislikes').doc(videoId);
+    await globalDocRef.set({
+      'likes': likes,
+      'dislikes': dislikes,
+    }, SetOptions(merge: true));
+
+    final userDocRef = globalDocRef.collection('users').doc(userId);
+    await userDocRef.set({
+      'liked': liked,
+      'disliked': disliked,
+    }, SetOptions(merge: true));
+  }
+
   Future<void> loadInitialPreferences({
     required String videoId,
     required Function(bool) setLiked,
@@ -14,84 +33,74 @@ class VideoService {
     required Function(int) setDislikes,
     required Function(bool) setFavorited,
   }) async {
-    if (userId.isEmpty) return;
-
-    final docRef = FirebaseFirestore.instance
-        .collection('users')
+    final favoriteDoc = await FirebaseFirestore.instance
+        .collection('favorites')
         .doc(userId)
-        .collection('likedDisliked')
-        .doc(videoId);
+        .collection('videos')
+        .doc(videoId)
+        .get();
 
-    final docSnapshot = await docRef.get();
-    if (docSnapshot.exists) {
-      final data = docSnapshot.data();
-      setLiked(data?['liked'] ?? false);
-      setDisliked(data?['disliked'] ?? false);
-      setFavorited(data?['isFavorite'] ?? false);
+    if (favoriteDoc.exists) {
+      final favoriteData = favoriteDoc.data()!;
+      setFavorited(favoriteData['isFavorite'] ?? false);
+    } else {
+      setFavorited(false);
     }
 
-    final videoRef = FirebaseFirestore.instance.collection('videos').doc(videoId);
-    final videoSnapshot = await videoRef.get();
-    if (videoSnapshot.exists) {
-      final videoData = videoSnapshot.data();
-      setLikes(videoData?['likes'] ?? 0);
-      setDislikes(videoData?['dislikes'] ?? 0);
+    final likesDislikesDoc = await FirebaseFirestore.instance
+        .collection('likesDislikes')
+        .doc(videoId)
+        .get();
+
+    if (likesDislikesDoc.exists) {
+      final likesDislikesData = likesDislikesDoc.data()!;
+      setLikes(likesDislikesData['likes'] ?? 0);
+      setDislikes(likesDislikesData['dislikes'] ?? 0);
+    } else {
+      setLikes(0);
+      setDislikes(0);
+    }
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('likesDislikes')
+        .doc(videoId)
+        .collection('users')
+        .doc(userId)
+        .get();
+
+    if (userDoc.exists) {
+      final userData = userDoc.data()!;
+      setLiked(userData['liked'] ?? false);
+      setDisliked(userData['disliked'] ?? false);
+    } else {
+      setLiked(false);
+      setDisliked(false);
     }
   }
 
 
-  // Update the like/dislike state in Firestore
-  Future<void> updateLikeDislikeState({
-    required String videoId,
-    required bool liked,
-    required bool disliked,
-    required int likes,
-    required int dislikes,
-  }) async {
-    if (userId.isEmpty) return;
-
-    final docRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(userId)
-        .collection('likedDisliked')
-        .doc(videoId);
-
-    await docRef.set({
-      'liked': liked,
-      'disliked': disliked,
-    });
-
-    final videoRef = FirebaseFirestore.instance.collection('videos').doc(videoId);
-
-    await videoRef.update({
-      'likes': likes,
-      'dislikes': dislikes,
-    });
-
-    print("Updated like/dislike state in Firestore.");
-  }
-
-  // Update the favorite state in Firestore
   Future<void> updateFavoriteState({
     required String videoId,
     required bool isFavorite,
   }) async {
     if (userId.isEmpty) return;
 
-    // Update user's favorite status for the video
-    final userDocRef = FirebaseFirestore.instance
-        .collection('users')
+    final favoriteDocRef = FirebaseFirestore.instance
+        .collection('favorites')
         .doc(userId)
-        .collection('likedDisliked')
+        .collection('videos')
         .doc(videoId);
 
-    await userDocRef.set({'isFavorite': isFavorite}, SetOptions(merge: true));
+    if (isFavorite) {
+      await favoriteDocRef.set({
+        'isFavorite': true,
+        'videoId': videoId,
+      }, SetOptions(merge: true));
+    } else {
+      await favoriteDocRef.delete();
+    }
 
-    // Update the favorite status in the video document
-    final videoDocRef = FirebaseFirestore.instance.collection('videos').doc(videoId);
-
-    await videoDocRef.update({'isFavorite': isFavorite});
-
-    print("Updated favorite state in Firestore.");
+    print("Updated favorite state for user $userId in Firestore.");
   }
+
 }

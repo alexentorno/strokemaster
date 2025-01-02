@@ -7,7 +7,6 @@ import 'package:stroke_master/state/auth/providers/authentication_provider.dart'
 import 'package:stroke_master/state/video/providers/video_state_provider.dart';
 
 class LogsScreen extends ConsumerWidget {
-
   const LogsScreen({super.key});
 
   @override
@@ -16,16 +15,14 @@ class LogsScreen extends ConsumerWidget {
     final userId = ref.watch(authenticationProvider).userId ?? "";
     final favorites = ref.watch(favoriteVideosProvider(userId));
 
-    return Container(
-      color: theme.scaffoldBackgroundColor,
-      child: SafeArea(
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           children: [
-            // App Logo or Header
             const ShowLogo(),
 
-            // Logs Header Title
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text(
@@ -35,29 +32,29 @@ class LogsScreen extends ConsumerWidget {
               ),
             ),
 
-            // Show either a message or the list of favorite videos
+            // Show a horizontally scrollable list of videos or a message if none exist
             favorites.isEmpty
                 ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Text(
-                  "No favorite videos yet.",
+                  "No favorite videos yet 😔",
                   style: AppStyles.mediumTextStyle.copyWith(
-                      color: theme.primaryColorLight,),
+                    color: theme.primaryColorLight,
+                  ),
                 ),
               ),
             )
-                : ListView.builder(
-              itemCount: favorites.length,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                final video = favorites[index];
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
-                  child: VideoIconCompact(video: video),
-                );
-              },
+                : SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: favorites.map((video) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: VideoIconCompact(video: video),
+                  );
+                }).toList(),
+              ),
             ),
           ],
         ),
