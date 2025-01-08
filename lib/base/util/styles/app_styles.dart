@@ -31,10 +31,10 @@ class AppStyles {
   static TextStyle linkStyle = TextStyle(
     fontSize: 16, fontWeight: FontWeight.w500, color: AppStyles.textColor);
 
-  static TextStyle headlineStyle1 = TextStyle(
+  static TextStyle headlineStyle1 = const TextStyle(
     fontSize: 26, fontWeight: FontWeight.bold);
 
-  static TextStyle headlineStyle2 = TextStyle(
+  static TextStyle headlineStyle2 = const TextStyle(
     fontSize: 21, fontWeight: FontWeight.bold);
 
   static TextStyle headlineStyle3 = const TextStyle(

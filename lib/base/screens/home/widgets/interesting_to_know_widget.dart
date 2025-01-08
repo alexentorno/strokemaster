@@ -15,7 +15,7 @@ class InterestingToKnowWidget extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 5),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFB2DFFC), //TODO: Change color for theme
+        color: const Color(0xFFB2DFFC),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(

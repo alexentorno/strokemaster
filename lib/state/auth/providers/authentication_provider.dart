@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:stroke_master/base/service/push_notification_service.dart';
 import 'package:stroke_master/state/auth/backend/authenticator.dart';
 import 'package:stroke_master/state/auth/models/auth_result.dart';
 import 'package:stroke_master/state/auth/models/auth_state.dart';
@@ -52,13 +53,26 @@ class Authentication extends _$Authentication {
 
     final result = await _authenticator.loginWithEmailAndPassword(email, password);
 
+    final userId = _authenticator.userId;
+
+    String? token = await PushNotificationService().getFcmToken();
+    if (userId != null && token != null) {
+      // If user logs in from the different account, we need to update the fcm token
+      saveUserInfo(userId: userId, fcmToken: token);
+
+    }
+
     state = AuthState(
       result: result,
       isLoading: false,
-      userId: _authenticator.userId,
+      userId: userId,
       email: _authenticator.email,
       displayName: _authenticator.displayName,
     );
+
+    if (_authenticator.userId != null) {
+      await _loadUserInfo(_authenticator.userId!);
+    }
   }
 
   Future<void> logOut() async {
@@ -66,32 +80,47 @@ class Authentication extends _$Authentication {
     state = AuthState.unknown();
   }
 
-  Future<void> registerWithEmailAndPassword({required String name, required String email, required String password}) async {
+  Future<void> registerWithEmailAndPassword({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
     state = state.copyWith(isLoading: true);
 
-    final result = await _authenticator
-        .registerWithEmailAndPassword(email, password);
+    final result = await _authenticator.registerWithEmailAndPassword(email, password);
 
     final userId = _authenticator.userId;
 
-    if (result == AuthResult.success && userId != null) {
-      saveUserInfo(userId, email, name);
-    }
+    print("User NAME: ${_authenticator.displayName}");
 
-    state = AuthState(
-      result: result,
-      isLoading: false,
-      userId: _authenticator.userId,
-      email: _authenticator.email,
-      displayName: _authenticator.displayName,
-    );
+    if (result == AuthResult.success && userId != null) {
+      await saveUserInfo(userId: userId, email: email, name: name);
+
+      state = AuthState(
+        result: result,
+        isLoading: false,
+        userId: userId,
+        email: _authenticator.email,
+        displayName: _authenticator.displayName,
+      );
+
+      await _loadUserInfo(userId);
+    } else {
+      state = state.copyWith(
+        result: result,
+        isLoading: false,
+      );
+    }
   }
 
-  Future<void> saveUserInfo(String userId, String email, String name) {
-    return _userInfoStorage.saveUserInfo(
+
+  Future<void> saveUserInfo(
+      {required String userId, String? email, String? name, String? fcmToken}) {
+    return _userInfoStorage.saveOrUpdateUserInfo(
       userId: userId,
       displayName: name,
       email: email,
+      fcmToken: fcmToken,
     );
   }
 }

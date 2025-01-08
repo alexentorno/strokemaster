@@ -7,8 +7,8 @@ import 'package:stroke_master/base/models/video.dart';
 import 'package:stroke_master/base/screens/home/quotes/sprint_canoe_quotes.dart';
 import 'package:stroke_master/base/screens/home/widgets/interesting_to_know_widget.dart';
 import 'package:stroke_master/base/screens/home/widgets/video_icon_compact.dart';
+import 'package:stroke_master/base/service/firestore_video_service.dart';
 import 'package:stroke_master/base/service/youtube_service.dart';
-import 'package:stroke_master/base/util/app_routes.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
 import 'package:stroke_master/base/widgets/show_logo.dart';
 import 'package:stroke_master/base/widgets/title_and_link_widget.dart';
@@ -18,6 +18,12 @@ final videoProvider = FutureProvider<List<Video>>((ref) async {
   final userId = ref.watch(authenticationProvider).userId ?? "";
 
   return await YouTubeApiService().fetchVideosWithPreferences(userId);
+});
+
+final topExercisesProvider = FutureProvider<List<Video>>((ref) async {
+  final userId = ref.watch(authenticationProvider).userId ?? "";
+  final topVideos = VideoService(userId: userId).fetchTopExercisesInLast24Hours();
+  return await topVideos;
 });
 
 
@@ -50,7 +56,6 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authenticationProvider);
     final theme = Theme.of(context);
-    final videos = ref.watch(videoProvider);
     final randomIndex = Random().nextInt(quotes.length);
 
 
@@ -86,32 +91,28 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
 
-                TitleAndLinkWidget(
+                const TitleAndLinkWidget(
                   title: "Today's Top Exercises",
-                  details: 'View all',
-                  func: () => router.push("/view_todays_top_exercises"),
                 ),
 
                 const SizedBox(height: 20),
 
                 // Video List
-                videos.when(
+                ref.watch(topExercisesProvider).when(
                   data: (videos) => SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: videos
-                          .map((video) => VideoIconCompact(
-                        video: video,
-                      )).toList(),
+                      children: videos.map((video) => VideoIconCompact(video: video)).toList(),
                     ),
                   ),
                   loading: () => Center(
                     child: SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.2,
-                        child: const Center(child: LoadingAnimationScreen())),
+                      height: MediaQuery.of(context).size.height * 0.2,
+                      child: const Center(child: LoadingAnimationScreen()),
+                    ),
                   ),
                   error: (error, stack) => Center(
-                    child: Text("Error loading videos: $error"),
+                    child: Text("Error loading top exercises: $error"),
                   ),
                 ),
 

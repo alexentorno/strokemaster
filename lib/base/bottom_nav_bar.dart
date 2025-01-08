@@ -59,7 +59,7 @@ class BottomNavBar extends StatelessWidget {
             BottomNavigationBarItem(
                 icon: Icon(Icons.collections_bookmark_outlined),
                 activeIcon: Icon(Icons.collections_bookmark_rounded),
-                label: 'Tickets'),
+                label: 'Logs'),
 
             BottomNavigationBarItem(
                 icon: Icon(FluentSystemIcons.ic_fluent_person_regular),

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:flutter/services.dart';
 
 class VideoScreen extends StatefulWidget {
-
   final String id;
 
   const VideoScreen({super.key, required this.id});
@@ -12,7 +12,6 @@ class VideoScreen extends StatefulWidget {
 }
 
 class _VideoScreenState extends State<VideoScreen> {
-
   late YoutubePlayerController _controller;
 
   @override
@@ -25,6 +24,13 @@ class _VideoScreenState extends State<VideoScreen> {
         autoPlay: true,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Unlock orientation when leaving the screen
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    super.dispose();
   }
 
   @override

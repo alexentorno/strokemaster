@@ -12,6 +12,7 @@ class ThemeNotifier extends ChangeNotifier {
 
   // Custom dark theme
   ThemeData get darkTheme => ThemeData(
+    cardColor: AppStyles.appBarColor,
     disabledColor: const Color.fromARGB(55, 189, 189, 189),
     hintColor: AppStyles.textColorDark,
     highlightColor: AppStyles.linkColorDark,
@@ -25,6 +26,7 @@ class ThemeNotifier extends ChangeNotifier {
 
   // Custom light theme
   ThemeData get lightTheme => ThemeData(
+    cardColor: Colors.grey[200],
     disabledColor: const Color.fromARGB(55, 23, 23, 23),
     hintColor: AppStyles.textColor,
     highlightColor: AppStyles.linkColor,

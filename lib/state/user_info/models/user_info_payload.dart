@@ -10,11 +10,13 @@ class UserInfoPayload extends MapView<String, String> {
     required UserId userId,
     required String? displayName,
     required String? email,
+    required String? fcmToken,
   }) : super(
     {
       FirebaseFieldName.userId: userId,
       FirebaseFieldName.displayName: displayName ?? '',
       FirebaseFieldName.email: email ?? '',
+      FirebaseFieldName.fcmToken: fcmToken ?? '',
     },
   );
 
@@ -27,6 +29,7 @@ class UserInfoPayload extends MapView<String, String> {
       userId: firestoreData[FirebaseFieldName.userId] as String,
       displayName: firestoreData[FirebaseFieldName.displayName] as String?,
       email: firestoreData[FirebaseFieldName.email] as String?,
+      fcmToken: firestoreData[FirebaseFieldName.fcmToken] as String?,
     );
   }
 }

@@ -52,11 +52,11 @@ class ProfileScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       HeadingText(
-                        text: authState.displayName ?? "Unknown_user", // TODO: User's first and last name
+                        text: authState.displayName ?? "Unknown_user", // User's first and last name
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        authState.email ?? "Unknown_email", // TODO: User's email
+                        authState.email ?? "Unknown_email", // User's email
                         style: TextStyle(
                           color: theme.primaryColorLight,
                           fontSize: 16,

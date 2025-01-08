@@ -7,25 +7,42 @@ import 'package:stroke_master/typedef/user_id.dart';
 class UserInfoStorage {
   const UserInfoStorage();
 
-  Future<bool> saveUserInfo(
-      {required UserId userId, required String displayName, required String? email}) async {
+  Future<bool> saveOrUpdateUserInfo(
+      { required UserId userId,
+        String? displayName,
+        String? email,
+        String? fcmToken
+      }) async {
     try {
       var userInfo = await FirebaseFirestore.instance
           .collection(FirebaseCollectionName.users)
           .where(FirebaseFieldName.userId, isEqualTo: userId)
           .limit(1)
           .get();
+
+
       if (userInfo.docs.isNotEmpty) {
-        // we already have this user's profile, save the new data instead
-        await userInfo.docs.first.reference.update({
-          FirebaseFieldName.displayName: displayName,
-          FirebaseFieldName.email: email ?? '',
-        });
+        Map<String, dynamic> updatedData = {};
+
+        if (displayName != null) {
+          updatedData[FirebaseFieldName.displayName] = displayName;
+        }
+        if (email != null) {
+          updatedData[FirebaseFieldName.email] = email;
+        }
+        if (fcmToken != null) {
+          updatedData[FirebaseFieldName.fcmToken] = fcmToken;
+        }
+
+        if (updatedData.isNotEmpty) {
+          await userInfo.docs.first.reference.update(updatedData);
+        }
+
         return true;
       }
 
       final payload = UserInfoPayload(
-          userId: userId, displayName: displayName, email: email);
+          userId: userId, displayName: displayName, email: email, fcmToken: fcmToken);
 
       await FirebaseFirestore.instance
           .collection(FirebaseCollectionName.users)
@@ -53,7 +70,7 @@ class UserInfoStorage {
         return null;
       }
     } catch (e) {
-      return null; // Handle or log error appropriately
+      throw Exception('Failed to get user info: $e');
     }
   }
 

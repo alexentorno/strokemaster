@@ -27,7 +27,6 @@ class SearchScreen extends ConsumerStatefulWidget {
 
 class _SearchScreenState extends ConsumerState<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-
   String searchQuery = "";
   List<String> selectedWhere = [];
   List<String> selectedDifficulty = [];
@@ -47,8 +46,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   void _searchVideos() {
-    setState(() {
-    });
+    setState(() {});
   }
 
   @override
@@ -69,17 +67,28 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final theme = Theme.of(context);
     final videoAsync = ref.watch(videoProvider);
 
+    final filteredVideos = videoAsync.when(
+      data: (videos) {
+        return videos.where((video) {
+          final matchesSearchQuery = video.name.toLowerCase().contains(searchQuery.toLowerCase());
+          final matchesWhere = selectedWhere.isEmpty || selectedWhere.contains(video.where);
+          final matchesDifficulty = selectedDifficulty.isEmpty || selectedDifficulty.contains(video.difficulty);
+          return matchesSearchQuery && matchesWhere && matchesDifficulty;
+        }).toList();
+      },
+      loading: () => [],
+      error: (err, stack) => [],
+    );
+
     return Container(
       color: theme.scaffoldBackgroundColor,
       child: SafeArea(
         child: Scaffold(
           body: CustomScrollView(
             slivers: [
-              // SliverAppBar with pinned logo
               SliverAppBar(
                 backgroundColor: theme.scaffoldBackgroundColor,
                 pinned: true,
-                floating: false,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Container(
                     color: theme.scaffoldBackgroundColor,
@@ -90,7 +99,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
               SliverList(
                 delegate: SliverChildListDelegate([
-                  // Title Text
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                     child: Text(
@@ -111,7 +119,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         ),
                         prefixIcon: const Icon(Icons.search),
                       ),
-                      onSubmitted: (_) => _searchVideos(),
+                      onChanged: (_) => _searchVideos(),
                     ),
                   ),
 
@@ -121,7 +129,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     child: CustomFilterChips(
                       label: "Where?",
                       options: whereOptions,
-                      selectedItems: selectedWhere.isNotEmpty ? selectedWhere : [],
+                      selectedItems: selectedWhere,
                       onSelectionChanged: (newSelection) {
                         setState(() {
                           selectedWhere = newSelection;
@@ -138,7 +146,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     child: CustomFilterChips(
                       label: "Difficulty level",
                       options: difficultyOptions,
-                      selectedItems: selectedDifficulty.isNotEmpty ? selectedDifficulty : [],
+                      selectedItems: selectedDifficulty,
                       onSelectionChanged: (newSelection) {
                         setState(() {
                           selectedDifficulty = newSelection;
@@ -169,7 +177,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         ),
                       ),
                     )
-                  else if (videoAsync.hasValue && videoAsync.value?.isEmpty == true)
+                  else if (filteredVideos.isEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Center(
@@ -181,22 +189,21 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         ),
                       ),
                     )
-                  else if (videoAsync.hasValue)
-                      ListView.builder(
-                        shrinkWrap: true, // List only takes needed space
-                        physics: const NeverScrollableScrollPhysics(), // Disable scrolling within the list
-                        itemCount: videoAsync.value?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          final video = videoAsync.value![index];
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: filteredVideos.length,
+                      itemBuilder: (context, index) {
+                        final video = filteredVideos[index];
 
-                          return VideoIcon(
-                            video: video,
-                            theme: theme,
-                            userId: ref.watch(authenticationProvider).userId ?? "",
-                          );
-                        },
-                      ),
-
+                        return VideoIcon(
+                          video: video,
+                          theme: theme,
+                          userId: ref.watch(authenticationProvider).userId ?? "",
+                        );
+                      },
+                    ),
                 ]),
               ),
             ],

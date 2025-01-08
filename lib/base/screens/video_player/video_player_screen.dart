@@ -4,12 +4,12 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 class VideoPlayerScreen extends StatelessWidget {
   final String videoId;
 
-  VideoPlayerScreen({super.key, required this.videoId});
+  const VideoPlayerScreen({super.key, required this.videoId});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Video Player")),
+      appBar: AppBar(title: const Text("Video Player")),
       body: YoutubePlayer(
         controller: YoutubePlayerController(
           initialVideoId: videoId,

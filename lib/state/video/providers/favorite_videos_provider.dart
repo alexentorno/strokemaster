@@ -20,21 +20,38 @@ class FavoriteVideosNotifier extends StateNotifier<List<Video>> {
         .doc(userId)
         .collection('videos')
         .snapshots()
-        .listen((snapshot) {
-      final List<Video> favorites = snapshot.docs.map((doc) {
+        .listen((snapshot) async {
+      final List<Video> favorites = await Future.wait(snapshot.docs.map((doc) async {
         final data = doc.data();
+
+        print(data);
+
+        final likesDislikesDoc = await FirebaseFirestore.instance
+            .collection('likesDislikes')
+            .doc(doc.id)
+            .get();
+
+        final videoDoc = await FirebaseFirestore.instance
+            .collection('videos')
+            .doc(data['videoId'])
+            .get();
+        final videoData = videoDoc.data() ?? {};
+
         return Video(
           id: doc.id,
-          name: data['name'] ?? '',
-          thumbnailUrl: data['thumbnailUrl'] ?? '',
-          where: data['where'] ?? 'On Water',
-          difficulty: data['difficulty'] ?? 'Beginner',
+          name: videoData['name'] ?? 'Unknown',
+          thumbnailUrl: videoData['thumbnailUrl'] ?? '',
+          where: videoData['where'] ?? 'Unknown',
+          difficulty: videoData['difficulty'] ?? 'Unknown',
           isFavorite: data['isFavorite'] ?? false,
-          likes: 0, // Likes/dislikes handled separately
-          dislikes: 0,
+          likes: likesDislikesDoc.data()?['likes'] ?? 0,
+          dislikes: likesDislikesDoc.data()?['dislikes'] ?? 0,
         );
-      }).toList();
-      state = favorites;
+      }));
+
+      if (state != favorites) {
+        state = favorites;
+      }
     });
   }
 

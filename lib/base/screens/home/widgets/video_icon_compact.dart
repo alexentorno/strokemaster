@@ -5,7 +5,6 @@ import 'package:stroke_master/base/screens/search/video_screen.dart';
 import 'package:stroke_master/base/service/firestore_video_service.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
 import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
-import 'package:stroke_master/state/video/providers/video_state_provider.dart';
 
 
 class VideoIconCompact extends ConsumerStatefulWidget {
@@ -109,12 +108,6 @@ class _VideoIconCompactState extends ConsumerState<VideoIconCompact> {
       videoId: widget.video.id,
       isFavorite: isFavorited,
     );
-
-    if (isFavorited) {
-      ref.read(favoriteVideosProvider(userId).notifier).addToFavorites(widget.video);
-    } else {
-      ref.read(favoriteVideosProvider(userId).notifier).removeFromFavorites(widget.video);
-    }
   }
 
   @override

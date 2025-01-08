@@ -42,7 +42,7 @@ class CustomFilterChips extends StatelessWidget {
                 ),
               ),
               selected: isSelected,
-              backgroundColor: Colors.grey[200],
+              backgroundColor: theme.cardColor,
               selectedColor: label == "Where?" ? Colors.blue : Colors.deepPurpleAccent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),

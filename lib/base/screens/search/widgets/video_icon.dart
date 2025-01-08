@@ -56,7 +56,6 @@ class _VideoIconState extends State<VideoIcon> {
       } else {
         likes--;
       }
-
     });
 
     videoService.updateLikeDislikeState(
@@ -113,7 +112,6 @@ class _VideoIconState extends State<VideoIcon> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Thumbnail
               Image.network(
                 widget.video.thumbnailUrl,
                 width: double.infinity,
@@ -125,7 +123,6 @@ class _VideoIconState extends State<VideoIcon> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Video Title
                     Text(
                       widget.video.name,
                       style: AppStyles.mediumTextStyle.copyWith(
@@ -135,22 +132,29 @@ class _VideoIconState extends State<VideoIcon> {
                     ),
                     const SizedBox(height: 8),
 
+                    // "Where?" and "Difficulty"
+                    Text("Where: ${widget.video.where}",
+                        style: AppStyles.mediumTextStyle.copyWith(
+                            fontSize: 16,
+                            color: widget.theme.primaryColorLight)),
+                    Text("Difficulty: ${widget.video.difficulty}",
+                        style: AppStyles.mediumTextStyle.copyWith(
+                            fontSize: 16,
+                            color: widget.theme.primaryColorLight)),
+
+                    const SizedBox(height: 8),
+
                     // Like, Dislike, and Favorite Buttons Row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Like and Dislike Buttons with Counts
                         Row(
                           children: [
                             IconButton(
                               onPressed: toggleLike,
                               icon: Icon(
-                                isLiked
-                                    ? Icons.thumb_up_alt
-                                    : Icons.thumb_up_alt_outlined,
-                                color: isLiked
-                                    ? widget.theme.primaryColor
-                                    : widget.theme.primaryColorLight,
+                                isLiked ? Icons.thumb_up_alt : Icons.thumb_up_alt_outlined,
+                                color: isLiked ? widget.theme.primaryColor : widget.theme.primaryColorLight,
                               ),
                             ),
                             Text('$likes', style: AppStyles.mediumTextStyle),
@@ -158,12 +162,8 @@ class _VideoIconState extends State<VideoIcon> {
                             IconButton(
                               onPressed: toggleDislike,
                               icon: Icon(
-                                isDisliked
-                                    ? Icons.thumb_down_alt
-                                    : Icons.thumb_down_alt_outlined,
-                                color: isDisliked
-                                    ? Colors.red
-                                    : widget.theme.primaryColorLight,
+                                isDisliked ? Icons.thumb_down_alt : Icons.thumb_down_alt_outlined,
+                                color: isDisliked ? Colors.red : widget.theme.primaryColorLight,
                               ),
                             ),
                             Text('$dislikes', style: AppStyles.mediumTextStyle),

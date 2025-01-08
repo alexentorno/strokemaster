@@ -16,15 +16,25 @@ class TitleAndLinkWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          title,
-          style: AppStyles.mediumTextStyle.copyWith(
-            color: theme.primaryColorLight,
-            fontSize: 26,
+        // Expanded ensures the title wraps within the available width
+        Expanded(
+          child: Text(
+            title,
+            style: AppStyles.mediumTextStyle.copyWith(
+              color: theme.primaryColorLight,
+              fontSize: screenWidth < 350
+                  ? 20 // for very small screens
+                  : screenWidth < 450
+                  ? 22 // for mid-range screens
+                  : 26, // for larger screens
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         if (details.isNotEmpty)
