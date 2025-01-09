@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stroke_master/base/models/video.dart';
-import 'package:stroke_master/base/screens/home/widgets/video_icon_compact.dart';
+import 'package:stroke_master/base/video_frame/compact/video_icon_compact.dart';
 
 class HomeVideoList extends StatelessWidget {
   final List<Video> videos;
@@ -10,7 +10,7 @@ class HomeVideoList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 300, // Set the height for the scrollable list
+      height: 300, // height for the scrollable list
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: videos.length,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stroke_master/base/util/styles/app_styles.dart';
 import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
 
 class LogoutButton extends ConsumerWidget {
@@ -25,12 +26,11 @@ class LogoutButton extends ConsumerWidget {
             ),
             padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 12),
           ),
-          child: const Text(
+          child: Text(
             "Logout",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppStyles.mediumTextStyle.copyWith(
+              color: theme.canvasColor
+            )
           ),
         ),
       ),

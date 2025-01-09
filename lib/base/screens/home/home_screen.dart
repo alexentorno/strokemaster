@@ -6,10 +6,10 @@ import 'package:stroke_master/base/animation/loading_animation_screen.dart';
 import 'package:stroke_master/base/models/video.dart';
 import 'package:stroke_master/base/screens/home/quotes/sprint_canoe_quotes.dart';
 import 'package:stroke_master/base/screens/home/widgets/interesting_to_know_widget.dart';
-import 'package:stroke_master/base/screens/home/widgets/video_icon_compact.dart';
 import 'package:stroke_master/base/service/firestore_video_service.dart';
 import 'package:stroke_master/base/service/youtube_service.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
+import 'package:stroke_master/base/video_frame/compact/video_icon_compact.dart';
 import 'package:stroke_master/base/widgets/show_logo.dart';
 import 'package:stroke_master/base/widgets/title_and_link_widget.dart';
 import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
@@ -118,7 +118,6 @@ class HomeScreen extends ConsumerWidget {
 
                 const SizedBox(height: 20),
 
-                // Title and Link
                 const TitleAndLinkWidget(
                   title: "Interesting to know:",
                 ),

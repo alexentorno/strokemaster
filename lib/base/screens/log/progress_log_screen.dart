@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stroke_master/base/screens/home/widgets/video_icon_compact.dart';
 import 'package:stroke_master/base/screens/log/widgets/rating_widget.dart';
 import 'package:stroke_master/base/util/app_routes.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
+import 'package:stroke_master/base/video_frame/compact/video_icon_compact.dart';
 import 'package:stroke_master/base/widgets/show_logo.dart';
 import 'package:stroke_master/base/widgets/title_and_link_widget.dart';
 import 'package:stroke_master/state/auth/providers/authentication_provider.dart';

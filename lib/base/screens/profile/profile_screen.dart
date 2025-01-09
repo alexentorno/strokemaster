@@ -1,7 +1,5 @@
-import 'package:fluentui_icons/fluentui_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stroke_master/main.dart';
 import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
 import '/base/util/media.dart';
 import '/base/util/styles/app_styles.dart';
@@ -14,9 +12,7 @@ class ProfileScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Access the current theme using Riverpod
-    final themeNotifier = ref.watch(themeNotifierProvider);
-    final theme = themeNotifier.isDark ? themeNotifier.darkTheme : themeNotifier.lightTheme;
+    final theme = Theme.of(context);
 
     final authState = ref.watch(authenticationProvider);
 
@@ -52,11 +48,11 @@ class ProfileScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       HeadingText(
-                        text: authState.displayName ?? "Unknown_user", // User's first and last name
+                        text: authState.displayName ?? "User", // User's first and last name
                       ),
                       const SizedBox(height: 15),
                       Text(
-                        authState.email ?? "Unknown_email", // User's email
+                        authState.email ?? "example@example.ex", // User's email
                         style: TextStyle(
                           color: theme.primaryColorLight,
                           fontSize: 16,
@@ -72,24 +68,25 @@ class ProfileScreen extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  Expanded(child: Container()),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Icon(
-                      FluentSystemIcons.ic_fluent_settings_regular,
-                      color: theme.primaryColorLight,
-                    ),
-                  ),
+                  // Expanded(child: Container()),
+                  // Padding(
+                  //   padding: const EdgeInsets.only(top: 10),
+                  //   child: Icon(
+                  //     FluentSystemIcons.ic_fluent_settings_regular,
+                  //     color: theme.primaryColorLight,
+                  //   ),
+                  // ),
                 ],
               ),
+
               const SizedBox(height: 8),
               Divider(color: Colors.grey.shade300),
               const SizedBox(height: 8),
+
               const ChangeThemeToggleTextWithButton(),
               const SizedBox(height: 25),
             ],
           ),
-          // Logout Button at the Bottom Center
           const LogoutButton()
         ],
       ),

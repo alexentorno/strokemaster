@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
+import 'package:stroke_master/state/constants/firebase_collection_name.dart';
+import 'package:stroke_master/state/constants/firebase_field_name.dart';
 import '../models/video.dart';
 import '../util/keys.dart';
 
@@ -25,7 +27,7 @@ class YouTubeApiService {
   }
 
   Future<void> uploadVideosToFirestore(List<Video> videos) async {
-    final videoCollection = _firestore.collection('videos');
+    final videoCollection = _firestore.collection(FirebaseCollectionName.videos);
 
     final existingDocs = await videoCollection.get();
     final existingIds = existingDocs.docs.map((doc) => doc.id).toSet();
@@ -37,14 +39,14 @@ class YouTubeApiService {
         final videoDoc = videoCollection.doc(video.id);
 
         batch.set(videoDoc, {
-          'id': video.id,
-          'name': video.name,
-          'thumbnailUrl': video.thumbnailUrl,
-          'where': video.where,
-          'difficulty': video.difficulty,
-          'likes': 0,
-          'dislikes': 0,
-          'isFavorite': false,
+          FirebaseFieldName.id: video.id,
+          FirebaseFieldName.name: video.name,
+          FirebaseFieldName.thumbnailUrl: video.thumbnailUrl,
+          FirebaseFieldName.where: video.where,
+          FirebaseFieldName.difficulty: video.difficulty,
+          FirebaseFieldName.likes: 0,
+          FirebaseFieldName.dislikes: 0,
+          FirebaseFieldName.isFavorite: false,
         });
       }
     }
@@ -53,10 +55,12 @@ class YouTubeApiService {
     print("Videos uploaded successfully!");
   }
 
-
   Future<List<Video>> fetchVideosWithPreferences(String userId) async {
-    final videoCollection = _firestore.collection('videos');
-    final likedDislikedCollection = _firestore.collection('users').doc(userId).collection('likedDisliked');
+    final videoCollection = _firestore.collection(FirebaseCollectionName.videos);
+    final likedDislikedCollection = _firestore
+        .collection(FirebaseCollectionName.users)
+        .doc(userId)
+        .collection(FirebaseCollectionName.likedDisliked);
 
     final videoSnapshot = await videoCollection.get();
     final likedDislikedSnapshot = await likedDislikedCollection.get();
@@ -68,22 +72,21 @@ class YouTubeApiService {
 
     return videoSnapshot.docs.map((doc) {
       final data = doc.data();
-      final videoId = data['id'];
+      final videoId = data[FirebaseFieldName.id];
       final userPreferences = likedDislikedMap[videoId] ?? {};
 
       return Video(
-        id: data['id'],
-        name: data['name'],
-        thumbnailUrl: data['thumbnailUrl'],
-        where: data['where'],
-        difficulty: data['difficulty'],
-        isFavorite: data['isFavorite'] ?? false,
-        likes: data['likes'] ?? 999,
-        dislikes: data['dislikes'] ?? 999,
-        isLiked: userPreferences['liked'] ?? false,
-        isDisliked: userPreferences['disliked'] ?? false,
+        id: data[FirebaseFieldName.id],
+        name: data[FirebaseFieldName.name],
+        thumbnailUrl: data[FirebaseFieldName.thumbnailUrl],
+        where: data[FirebaseFieldName.where],
+        difficulty: data[FirebaseFieldName.difficulty],
+        isFavorite: data[FirebaseFieldName.isFavorite] ?? false,
+        likes: data[FirebaseFieldName.likes] ?? 999,
+        dislikes: data[FirebaseFieldName.dislikes] ?? 999,
+        isLiked: userPreferences[FirebaseFieldName.liked] ?? false,
+        isDisliked: userPreferences[FirebaseFieldName.disliked] ?? false,
       );
     }).toList();
   }
-
 }

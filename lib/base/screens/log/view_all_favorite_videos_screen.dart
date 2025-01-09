@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stroke_master/base/screens/search/widgets/video_icon.dart';
+import 'package:stroke_master/base/video_frame/large/video_icon.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
 import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
 import 'package:stroke_master/state/video/providers/favorite_videos_provider.dart';

@@ -61,14 +61,14 @@ class ThemeNotifier extends ChangeNotifier {
     SystemChrome.setSystemUIOverlayStyle(
       _isDark
           ? const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent, // Transparent for better blending
-        statusBarIconBrightness: Brightness.light, // Icons for dark theme
-        statusBarBrightness: Brightness.dark, // iOS compatibility
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       )
           : const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark, // Icons for light theme
-        statusBarBrightness: Brightness.light, // iOS compatibility
+        statusBarIconBrightness: Brightness.dark,
+        statusBarBrightness: Brightness.light,
       ),
     );
   }

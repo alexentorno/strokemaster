@@ -8,7 +8,10 @@ import 'package:stroke_master/state/auth/models/auth_state.dart';
 import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
 import 'package:stroke_master/state/auth/providers/is_logged_in_provider.dart';
 
-import 'helper/validator.dart';
+import 'widgets/email_field_widget.dart';
+import 'widgets/login_button_widget.dart';
+import 'widgets/login_header_widget.dart';
+import 'widgets/password_field_widget.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -18,10 +21,9 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
   bool _isPasswordVisible = false;
 
   @override
@@ -44,12 +46,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final theme = Theme.of(context);
     final authProvider = ref.watch(authenticationProvider);
 
+    // Listen for login status
     ref.listen(isLoggedInProvider, (_, isLoggedIn) {
       if (isLoggedIn && Navigator.of(context).canPop()) {
         context.pop();
       }
     });
 
+    // Listen for authentication errors
     ref.listen(authenticationProvider, (AuthState? previous, AuthState current) {
       if (current.result == AuthResult.failure && !current.isLoading) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -66,90 +70,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      appBar: AppBar(
-        title: const ShowLogo(),
-      ),
+      appBar: AppBar(title: const ShowLogo()),
       body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          child: Form(
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Login",
-                  style: AppStyles.appBarTitleStyle.copyWith(color: theme.primaryColor),
-                ),
-                Row(
-                  children: [
-                    Text("Don't have an account?",
-                        style: AppStyles.mediumTextStyle.copyWith(color: theme.primaryColorLight)),
-                    TextButton(
-                      onPressed: () => context.push("/register"),
-                      child: Text(
-                        "Register",
-                        style: AppStyles.mediumTextStyle.copyWith(
-                          color: theme.highlightColor,
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: "Email *",
-                    labelStyle: AppStyles.mediumTextStyle.copyWith(
-                      fontSize: 16,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                  validator: Validator.validateEmail,
-                ),
+                LoginHeader(theme: theme),
+                EmailField(controller: _emailController),
                 const SizedBox(height: 15),
-                TextFormField(
+                PasswordField(
                   controller: _passwordController,
-                  obscureText: !_isPasswordVisible,
-                  decoration: InputDecoration(
-                    labelText: "Password *",
-                    labelStyle: AppStyles.mediumTextStyle.copyWith(
-                      fontSize: 16,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _isPasswordVisible = !_isPasswordVisible;
-                        });
-                      },
-                    ),
-                  ),
-                  validator: Validator.validatePassword,
+                  isPasswordVisible: _isPasswordVisible,
+                  onVisibilityToggle: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    backgroundColor: theme.primaryColor,
-                  ),
+                LoginButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       authProvider.isLoading ? null : _attemptLogin();
                     }
                   },
-                  child: Text("Login",
-                      style: AppStyles.mediumTextStyle.copyWith(
-                        color: Colors.white,
-                      )),
+                  isLoading: authProvider.isLoading,
+                  theme: theme,
                 ),
               ],
             ),

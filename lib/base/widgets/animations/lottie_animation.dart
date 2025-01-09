@@ -1,7 +1,5 @@
 enum LottieAnimation {
-  empty(name: 'empty'),
-  loading(name: 'loading'),
-  error(name: 'error');
+  loading(name: 'loading');
 
   final String name;
 

@@ -39,7 +39,6 @@ class PushNotificationService {
       }
 
       final token = await getFcmToken();
-      print('FCM Token: $token');
 
       final userId = _authenticator.userId;
       if (token != null && userId != null) {

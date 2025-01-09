@@ -22,7 +22,7 @@ class Authenticator {
           .signInWithEmailAndPassword(email: email, password: password);
       return AuthResult.success;
     } catch (e) {
-      print('Error loggong in: $e');
+      print('Error logging in: $e');
       return AuthResult.failure;
     }
   }

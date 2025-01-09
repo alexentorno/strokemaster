@@ -2,16 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stroke_master/base/animation/loading_animation_screen.dart';
 import 'package:stroke_master/base/models/video.dart';
-import 'package:stroke_master/base/screens/search/widgets/custom_filter_chips_widget.dart';
-import 'package:stroke_master/base/screens/search/widgets/video_icon.dart';
 import 'package:stroke_master/base/service/youtube_service.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
 import 'package:stroke_master/base/widgets/show_logo.dart';
 import 'package:stroke_master/state/auth/providers/authentication_provider.dart';
 
-// Assuming you have a provider for fetching videos
+import 'widgets/filters_section_widget.dart';
+import 'widgets/search_field_widget.dart';
+import 'widgets/video_list_widget.dart';
+
 final videoProvider = FutureProvider<List<Video>>((ref) async {
   final userId = ref.watch(authenticationProvider).userId ?? "";
   final apiService = YouTubeApiService();
@@ -30,9 +30,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   String searchQuery = "";
   List<String> selectedWhere = [];
   List<String> selectedDifficulty = [];
-
-  List<String> whereOptions = ["On Water", "Gym", "Warm up"];
-  List<String> difficultyOptions = ["Beginner", "Advanced", "Professional"];
 
   Timer? _debounce;
 
@@ -63,11 +60,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final videoAsync = ref.watch(videoProvider);
 
-    final filteredVideos = videoAsync.when(
+    final List<Video> filteredVideos = videoAsync.when(
       data: (videos) {
         return videos.where((video) {
           final matchesSearchQuery = video.name.toLowerCase().contains(searchQuery.toLowerCase());
@@ -107,103 +105,42 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ),
                   ),
 
-                  // Search Field Widget
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search videos...',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        prefixIcon: const Icon(Icons.search),
-                      ),
-                      onChanged: (_) => _searchVideos(),
-                    ),
+                  SearchField(
+                    controller: _searchController,
+                    onSearchChanged: _onSearchChanged,
                   ),
 
-                  // Filters Section
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: CustomFilterChips(
-                      label: "Where?",
-                      options: whereOptions,
-                      selectedItems: selectedWhere,
-                      onSelectionChanged: (newSelection) {
-                        setState(() {
-                          selectedWhere = newSelection;
-                        });
-                        _searchVideos();
-                      },
-                    ),
+                  FiltersSection(
+                    selectedWhere: selectedWhere,
+                    selectedDifficulty: selectedDifficulty,
+                    onWhereSelectionChanged: (newSelection) {
+                      setState(() {
+                        selectedWhere = newSelection;
+                      });
+                      _searchVideos();
+                    },
+                    onDifficultySelectionChanged: (newSelection) {
+                      setState(() {
+                        selectedDifficulty = newSelection;
+                      });
+                      _searchVideos();
+                    },
                   ),
 
                   const SizedBox(height: 15),
 
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
-                    child: CustomFilterChips(
-                      label: "Difficulty level",
-                      options: difficultyOptions,
-                      selectedItems: selectedDifficulty,
-                      onSelectionChanged: (newSelection) {
-                        setState(() {
-                          selectedDifficulty = newSelection;
-                        });
-                        _searchVideos();
-                      },
-                    ),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final videoState = ref.watch(videoProvider);
+                      print(videoState.error);
+                      return VideoList(
+                        videos: filteredVideos,
+                        isLoading: videoState.isLoading,
+                        hasError: videoState.hasError,
+                        userId: ref.watch(authenticationProvider).userId ?? "",
+                      );
+                    },
                   ),
-
-                  const SizedBox(height: 15),
-
-                  // Loading Indicator
-                  if (videoAsync.isLoading)
-                    SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.3,
-                        child: const Center(child: LoadingAnimationScreen())),
-
-                  // Video List
-                  if (videoAsync.hasError)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Center(
-                        child: Text(
-                          "Error loading videos 😔",
-                          style: AppStyles.mediumTextStyle.copyWith(
-                            color: theme.primaryColorLight,
-                          ),
-                        ),
-                      ),
-                    )
-                  else if (filteredVideos.isEmpty)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                      child: Center(
-                        child: Text(
-                          "No videos found 😔",
-                          style: AppStyles.mediumTextStyle.copyWith(
-                            color: theme.primaryColorLight,
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: filteredVideos.length,
-                      itemBuilder: (context, index) {
-                        final video = filteredVideos[index];
-
-                        return VideoIcon(
-                          video: video,
-                          theme: theme,
-                          userId: ref.watch(authenticationProvider).userId ?? "",
-                        );
-                      },
-                    ),
                 ]),
               ),
             ],
@@ -212,4 +149,5 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       ),
     );
   }
+
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:stroke_master/base/models/video.dart';
-import 'package:stroke_master/base/screens/search/video_screen.dart';
+import 'package:stroke_master/base/screens/video_player/video_screen.dart';
 import 'package:stroke_master/base/service/firestore_video_service.dart';
 import 'package:stroke_master/base/util/styles/app_styles.dart';
 

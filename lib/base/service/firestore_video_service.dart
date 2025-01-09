@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stroke_master/base/models/video.dart';
+import 'package:stroke_master/state/constants/firebase_collection_name.dart';
+import 'package:stroke_master/state/constants/firebase_field_name.dart';
 
 class VideoService {
   final String userId;
@@ -13,18 +15,22 @@ class VideoService {
     required int likes,
     required int dislikes,
   }) async {
-    final globalDocRef = FirebaseFirestore.instance.collection('likesDislikes').doc(videoId);
+    final globalDocRef = FirebaseFirestore.instance
+        .collection(FirebaseCollectionName.likesDislikes)
+        .doc(videoId);
 
     await globalDocRef.set({
-      'likes': likes,
-      'dislikes': dislikes,
+      FirebaseFieldName.likes: likes,
+      FirebaseFieldName.dislikes: dislikes,
     }, SetOptions(merge: true));
 
-    final userDocRef = globalDocRef.collection('users').doc(userId);
+    final userDocRef = globalDocRef
+        .collection(FirebaseCollectionName.users)
+        .doc(userId);
     await userDocRef.set({
-      'liked': liked,
-      'disliked': disliked,
-      'timestamp': liked ? FieldValue.serverTimestamp() : null,
+      FirebaseFieldName.liked: liked,
+      FirebaseFieldName.disliked: disliked,
+      FirebaseFieldName.timestamp: liked ? FieldValue.serverTimestamp() : null,
     }, SetOptions(merge: true));
   }
 
@@ -32,66 +38,63 @@ class VideoService {
     final now = DateTime.now();
     final yesterday = now.subtract(const Duration(hours: 24));
 
-    final likesDislikesCollection =
-    FirebaseFirestore.instance.collection('likesDislikes');
+    final likesDislikesCollection = FirebaseFirestore.instance
+        .collection(FirebaseCollectionName.likesDislikes);
     final querySnapshot = await likesDislikesCollection.get();
 
     final likeCounts = <String, int>{};
 
-    // Iterate over each document in 'likesDislikes' to access 'users' sub-collection
     for (var doc in querySnapshot.docs) {
       final videoId = doc.id;
-      final usersSubCollection = doc.reference.collection('users');
+      final usersSubCollection = doc.reference.collection(FirebaseCollectionName.users);
       final usersSnapshot = await usersSubCollection
-          .where('timestamp', isGreaterThan: Timestamp.fromDate(yesterday))
+          .where(FirebaseFieldName.timestamp, isGreaterThan: Timestamp.fromDate(yesterday))
           .get();
 
-      // Count the number of likes from users
       for (var userDoc in usersSnapshot.docs) {
         final userData = userDoc.data();
-        if (userData['liked'] == true) {
+        if (userData[FirebaseFieldName.liked] == true) {
           likeCounts[videoId] = (likeCounts[videoId] ?? 0) + 1;
         }
       }
     }
 
-    // Sort by likes and take top 3
-    final topVideoIds = likeCounts.entries
-        .toList()
+    final topVideoIds = likeCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final top3Ids = topVideoIds.take(3).map((entry) => entry.key).toList();
 
-    // Fetch video details for top 3
     final videoSnapshots = await Future.wait(
-        top3Ids.map((id) => FirebaseFirestore.instance.collection('videos').doc(id).get()));
+        top3Ids.map((id) => FirebaseFirestore.instance
+            .collection(FirebaseCollectionName.videos)
+            .doc(id)
+            .get()));
 
-    // Fetch liked/disliked preferences for the user
     final likedDislikedCollection = FirebaseFirestore.instance
-        .collection('users')
+        .collection(FirebaseCollectionName.users)
         .doc(userId)
-        .collection('likedDisliked');
+        .collection(FirebaseCollectionName.likedDisliked);
     final likedDislikedSnapshot = await likedDislikedCollection.get();
     final likedDislikedMap = {
       for (var doc in likedDislikedSnapshot.docs)
-        doc.id: doc.data(), // {liked: true/false, disliked: true/false}
+        doc.id: doc.data(),
     };
 
     return videoSnapshots.map((snapshot) {
       final data = snapshot.data()!;
-      final videoId = data['id'];
+      final videoId = data[FirebaseFieldName.videoId];
       final userPreferences = likedDislikedMap[videoId] ?? {};
 
       return Video(
         id: snapshot.id,
-        name: data['name'],
-        thumbnailUrl: data['thumbnailUrl'],
-        where: data['where'],
-        difficulty: data['difficulty'],
-        isFavorite: data['isFavorite'],
-        likes: data['likes'] ?? 999,
-        dislikes: data['dislikes'] ?? 999,
-        isLiked: userPreferences['liked'] ?? false,
-        isDisliked: userPreferences['disliked'] ?? false,
+        name: data[FirebaseFieldName.name],
+        thumbnailUrl: data[FirebaseFieldName.thumbnailUrl],
+        where: data[FirebaseFieldName.where],
+        difficulty: data[FirebaseFieldName.difficulty],
+        isFavorite: data[FirebaseFieldName.isFavorite],
+        likes: data[FirebaseFieldName.likes] ?? 0,
+        dislikes: data[FirebaseFieldName.dislikes] ?? 0,
+        isLiked: userPreferences[FirebaseFieldName.liked] ?? false,
+        isDisliked: userPreferences[FirebaseFieldName.disliked] ?? false,
       );
     }).toList();
   }
@@ -105,72 +108,93 @@ class VideoService {
     required Function(bool) setFavorited,
   }) async {
     final favoriteDoc = await FirebaseFirestore.instance
-        .collection('favorites')
+        .collection(FirebaseCollectionName.favorites)
         .doc(userId)
-        .collection('videos')
+        .collection(FirebaseCollectionName.videos)
         .doc(videoId)
         .get();
 
     if (favoriteDoc.exists) {
       final favoriteData = favoriteDoc.data()!;
-      setFavorited(favoriteData['isFavorite'] ?? false);
+      setFavorited(favoriteData[FirebaseFieldName.isFavorite] ?? false);
     } else {
       setFavorited(false);
     }
 
     final likesDislikesDoc = await FirebaseFirestore.instance
-        .collection('likesDislikes')
+        .collection(FirebaseCollectionName.likesDislikes)
         .doc(videoId)
         .get();
 
     if (likesDislikesDoc.exists) {
       final likesDislikesData = likesDislikesDoc.data()!;
-      setLikes(likesDislikesData['likes'] ?? 0);
-      setDislikes(likesDislikesData['dislikes'] ?? 0);
+      setLikes(likesDislikesData[FirebaseFieldName.likes] ?? 0);
+      setDislikes(likesDislikesData[FirebaseFieldName.dislikes] ?? 0);
     } else {
       setLikes(0);
       setDislikes(0);
     }
 
     final userDoc = await FirebaseFirestore.instance
-        .collection('likesDislikes')
+        .collection(FirebaseCollectionName.likesDislikes)
         .doc(videoId)
-        .collection('users')
+        .collection(FirebaseCollectionName.users)
         .doc(userId)
         .get();
 
     if (userDoc.exists) {
       final userData = userDoc.data()!;
-      setLiked(userData['liked'] ?? false);
-      setDisliked(userData['disliked'] ?? false);
+      setLiked(userData[FirebaseFieldName.liked] ?? false);
+      setDisliked(userData[FirebaseFieldName.disliked] ?? false);
     } else {
       setLiked(false);
       setDisliked(false);
     }
   }
 
-
   Future<void> updateFavoriteState({
     required String videoId,
     required bool isFavorite,
   }) async {
-    print('Updating favorite state');
     if (userId.isEmpty) return;
 
     final favoriteDocRef = FirebaseFirestore.instance
-        .collection('favorites')
+        .collection(FirebaseCollectionName.favorites)
         .doc(userId)
-        .collection('videos')
+        .collection(FirebaseCollectionName.videos)
         .doc(videoId);
 
     if (isFavorite) {
       await favoriteDocRef.set({
-        'isFavorite': true,
-        'videoId': videoId,
+        FirebaseFieldName.isFavorite: true,
+        FirebaseFieldName.videoId: videoId,
       }, SetOptions(merge: true));
     } else {
       await favoriteDocRef.delete();
     }
   }
 
+  Future<int?> fetchRating({required String videoId}) async {
+    final doc = await FirebaseFirestore.instance
+        .collection(FirebaseCollectionName.favorites)
+        .doc(userId)
+        .collection(FirebaseCollectionName.videos)
+        .doc(videoId)
+        .get();
+
+    return doc.exists && doc.data()?[FirebaseFieldName.rating] != null
+        ? doc.data()![FirebaseFieldName.rating] as int
+        : null;
+  }
+
+  Future<void> setRating({required String videoId, required int rating}) async {
+    await FirebaseFirestore.instance
+        .collection(FirebaseCollectionName.favorites)
+        .doc(userId)
+        .collection(FirebaseCollectionName.videos)
+        .doc(videoId)
+        .set({
+      FirebaseFieldName.rating: rating,
+    }, SetOptions(merge: true));
+  }
 }

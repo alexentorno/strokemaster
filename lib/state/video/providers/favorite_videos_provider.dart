@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stroke_master/base/models/video.dart';
+import 'package:stroke_master/state/constants/firebase_collection_name.dart';
+import 'package:stroke_master/state/constants/firebase_field_name.dart';
 
 class FavoriteVideosNotifier extends StateNotifier<List<Video>> {
   final String userId;
@@ -16,36 +18,34 @@ class FavoriteVideosNotifier extends StateNotifier<List<Video>> {
     if (userId.isEmpty) return;
 
     _subscription = FirebaseFirestore.instance
-        .collection('favorites')
+        .collection(FirebaseCollectionName.favorites)
         .doc(userId)
-        .collection('videos')
+        .collection(FirebaseCollectionName.videos)
         .snapshots()
         .listen((snapshot) async {
       final List<Video> favorites = await Future.wait(snapshot.docs.map((doc) async {
         final data = doc.data();
 
-        print(data);
-
         final likesDislikesDoc = await FirebaseFirestore.instance
-            .collection('likesDislikes')
+            .collection(FirebaseCollectionName.likesDislikes)
             .doc(doc.id)
             .get();
 
         final videoDoc = await FirebaseFirestore.instance
-            .collection('videos')
-            .doc(data['videoId'])
+            .collection(FirebaseCollectionName.videos)
+            .doc(data[FirebaseFieldName.videoId])
             .get();
         final videoData = videoDoc.data() ?? {};
 
         return Video(
           id: doc.id,
-          name: videoData['name'] ?? 'Unknown',
-          thumbnailUrl: videoData['thumbnailUrl'] ?? '',
-          where: videoData['where'] ?? 'Unknown',
-          difficulty: videoData['difficulty'] ?? 'Unknown',
-          isFavorite: data['isFavorite'] ?? false,
-          likes: likesDislikesDoc.data()?['likes'] ?? 0,
-          dislikes: likesDislikesDoc.data()?['dislikes'] ?? 0,
+          name: videoData[FirebaseFieldName.name] ?? 'Unknown',
+          thumbnailUrl: videoData[FirebaseFieldName.thumbnailUrl] ?? '',
+          where: videoData[FirebaseFieldName.where] ?? 'Unknown',
+          difficulty: videoData[FirebaseFieldName.difficulty] ?? 'Unknown',
+          isFavorite: data[FirebaseFieldName.isFavorite] ?? false,
+          likes: likesDislikesDoc.data()?[FirebaseFieldName.likes] ?? 0,
+          dislikes: likesDislikesDoc.data()?[FirebaseFieldName.dislikes] ?? 0,
         );
       }));
 
@@ -57,25 +57,25 @@ class FavoriteVideosNotifier extends StateNotifier<List<Video>> {
 
   Future<void> addToFavorites(Video video) async {
     final docRef = FirebaseFirestore.instance
-        .collection('favorites')
+        .collection(FirebaseCollectionName.favorites)
         .doc(userId)
-        .collection('videos')
+        .collection(FirebaseCollectionName.videos)
         .doc(video.id);
 
     await docRef.set({
-      'name': video.name,
-      'thumbnailUrl': video.thumbnailUrl,
-      'where': video.where,
-      'difficulty': video.difficulty,
-      'isFavorite': true,
+      FirebaseFieldName.name: video.name,
+      FirebaseFieldName.thumbnailUrl: video.thumbnailUrl,
+      FirebaseFieldName.where: video.where,
+      FirebaseFieldName.difficulty: video.difficulty,
+      FirebaseFieldName.isFavorite: true,
     });
   }
 
   Future<void> removeFromFavorites(Video video) async {
     final docRef = FirebaseFirestore.instance
-        .collection('favorites')
+        .collection(FirebaseCollectionName.favorites)
         .doc(userId)
-        .collection('videos')
+        .collection(FirebaseCollectionName.videos)
         .doc(video.id);
 
     await docRef.delete();
